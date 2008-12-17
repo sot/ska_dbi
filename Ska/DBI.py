@@ -2,11 +2,11 @@
 Ska.DBI provides simple methods for database access and data insertion.
 Features:
 
-- Sqlite and sybase connections are supported.
-- Automatic fetching of Ska database account passwords.
-- Integration with numpy record arrays.
-- Verbose mode to show transaction information.
-- Insert method smooths over syntax differences between sqlite and sybase.
+  - Sqlite and sybase connections are supported.
+  - Automatic fetching of Ska database account passwords.
+  - Integration with numpy record arrays.
+  - Verbose mode to show transaction information.
+  - Insert method smooths over syntax differences between sqlite and sybase.
 """
 
 import os
@@ -28,6 +28,11 @@ class DBI(object):
                  **kwargs):
         """Initialize DBI object. 
 
+        Example usage::
+          db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
+          db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca',
+                   numpy=True, verbose=True)
+
         @param dbi:  Database interface name (sqlite, sybase)
         @param server: Server name (or file name for sqlite)
         @param user: User name (optional)
@@ -37,15 +42,9 @@ class DBI(object):
         @param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types
         @param verbose: Print transaction info
         @param authdir: Directory containing authorization files
-        @param **kwargs: Any other keyword args are passed through to the connect() call.
 
         @return: DBI object
-
-        Example usage::
-          db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-          db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca',
-                   numpy=True, verbose=True)
-         """
+        """
 
         self.dbi = dbi
         self.server = server
@@ -117,14 +116,14 @@ class DBI(object):
     def fetch(self, expr, vals=None,):
         """Return a generator that will fetch one row at a time after executing with args.
 
+        Example usage::
+          for row in db.fetch(expr, vals):
+              print row['column']
+
         @param expr: SQL expression to execute
         @param vals: Values associated with the expression (optional)
 
         @return: Generator that will get one row of database as dict() via next()
-
-        Example usage::
-          for row in db.fetch(expr, vals):
-              print row['column']
         """
         self.execute(expr, vals)
         cols = [x[0] for x in self.cursor.description]
@@ -140,15 +139,15 @@ class DBI(object):
     def fetchone(self, expr, vals=None,):
         """Fetch one row after executing args.
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
-
-        @return: One row of database as dict()
-
         Example usage::
           for i in range(10):
               row = db.fetchone(expr, vals)
               print row['column']
+
+        @param expr: SQL expression to execute
+        @param vals: Values associated with the expression (optional)
+
+        @return: One row of database as dict()
         """
         try:
             return self.fetch(expr, vals).next()
@@ -158,15 +157,14 @@ class DBI(object):
     def fetchall(self, expr, vals=None):
         """Fetch all rows after executing args.
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
-
-        @return: All rows of database as numpy.rec.recarray or list of dicts, depending
-           on self.numpy
-
         Example usage::
           rows = db.fetchall(expr, vals)
           print rows[1:5]['column']
+
+        @param expr: SQL expression to execute
+        @param vals: Values associated with the expression (optional)
+
+        @return: All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy
         """
         self.execute(expr, vals)
         cols = [x[0] for x in self.cursor.description]
@@ -223,77 +221,3 @@ class DBI(object):
         # Finally run the insert command
         self.execute(cmd, vals, commit=commit)
 
-def test_db(db):
-    # Delete table if it exists already
-    try:
-        db.execute('drop table ska_dbi_test_table')
-    except db.Error, msg:
-        print 'Could not drop table ska_dbi_test_table:', msg
-
-    # Create table
-    print 'CREATE TABLE'
-    db.execute(open('ska_dbi_test_table.sql').read().strip())
-
-    # Put in some data
-    print 'INSERT DATA'
-    for id_ in range(3):
-        data = dict(id=id_, tstart=2.+id_, tstop=3.+id_, obsid=4+id_, pcad_mode='npnt',
-                    aspect_mode='kalm', sim_mode='stop')
-        db.insert(data, 'ska_dbi_test_table')
-
-    print 'FETCHALL'
-    rows = db.fetchall('select * from ska_dbi_test_table')
-    print rows
-
-    print 'INSERT from row read from db'
-    row = rows[0]
-    row['id'] += 10
-    print row
-    db.insert(row, 'ska_dbi_test_table')
-
-    print 'FETCHONE'
-    print db.fetchone('select * from ska_dbi_test_table')
-
-    print 'FETCH'
-    for row in db.fetch('select * from ska_dbi_test_table'):
-        print row
-
-    print 'FETCH (result set = null)'
-    for row in db.fetch('select * from ska_dbi_test_table where id=100000'):
-        print row
-
-    print 'FETCHONE (result set = null)'
-    print db.fetchone('select * from ska_dbi_test_table where id=100000')
-
-    print 'FETCHALL (result set = null)'
-    rows = db.fetchall('select * from ska_dbi_test_table where id=100000')
-    print rows
-
-    print 'DROP TABLE'
-    db.execute('drop table ska_dbi_test_table')
-
-def test_sqlite():
-    dbfile = 'test.sql3'
-    if os.path.exists(dbfile):
-        os.unlink(dbfile)
-
-    print "\n******* DBI(dbi='sqlite', server=dbfile, numpy=True) ********\n"
-    db = DBI(dbi='sqlite', server=dbfile, numpy=True)
-    test_db(db)
-    print "\n******* DBI(dbi='sqlite', server=dbfile, numpy=False) ********\n"
-    db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-    test_db(db)
-    os.unlink(dbfile)
-
-def test_sybase():
-    print "\n******* DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', numpy=True, verbose=True) ********\n"
-    db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', numpy=True, verbose=True)
-    test_db(db)
-    print "\n******* DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', numpy=False, verbose=True) ********\n"
-    db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', numpy=False, verbose=True)
-    test_db(db)
-
-if __name__ == '__main__':
-    test_sqlite()
-    test_sybase()
-    
