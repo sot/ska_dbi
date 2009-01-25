@@ -2,11 +2,11 @@
 Ska.DBI provides simple methods for database access and data insertion.
 Features:
 
-  - Sqlite and sybase connections are supported.
-  - Automatic fetching of Ska database account passwords.
-  - Integration with numpy record arrays.
-  - Verbose mode to show transaction information.
-  - Insert method smooths over syntax differences between sqlite and sybase.
+- Sqlite and sybase connections are supported.
+- Automatic fetching of Ska database account passwords.
+- Integration with numpy record arrays.
+- Verbose mode to show transaction information.
+- Insert method smooths over syntax differences between sqlite and sybase.
 """
 
 import os
@@ -14,7 +14,8 @@ import os
 supported_dbis = ('sqlite', 'sybase')
 
 def _denumpy(x):
-    """Try using the numpy.tolist() to convert to native python type.
+    """
+    Try using the numpy.tolist() to convert to native python type.
     DBI's can't typically handle numpy vals."""
     try:
         return x.tolist()
@@ -22,29 +23,31 @@ def _denumpy(x):
         return x
 
 class DBI(object):
+    """
+    Database interface class.
+
+    Example usage::
+
+      db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
+      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca',
+               numpy=True, verbose=True)
+
+    :param dbi:  Database interface name (sqlite, sybase)
+    :param server: Server name (or file name for sqlite)
+    :param user: User name (optional)
+    :param passwd: Password (optional).  Read from aspect authorization if required and not supplied.
+    :param database: Database name for sybase (optional).
+    :param autocommit: Automatically commit after each transaction.  Slower but easier to code.
+    :param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types
+    :param verbose: Print transaction info
+    :param authdir: Directory containing authorization files
+
+    :rtype: DBI object
+    """
     def __init__(self, dbi=None, server=None, user=None, passwd=None, database=None,
                  numpy=False, autocommit=True, verbose=False,
                  authdir='/proj/sot/ska/data/aspect_authorization',
                  **kwargs):
-        """Initialize DBI object. 
-
-        Example usage::
-          db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-          db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca',
-                   numpy=True, verbose=True)
-
-        @param dbi:  Database interface name (sqlite, sybase)
-        @param server: Server name (or file name for sqlite)
-        @param user: User name (optional)
-        @param passwd: Password (optional).  Read from aspect authorization if required and not supplied.
-        @param  database: Database name for sybase (optional).
-        @param autocommit: Automatically commit after each transaction.  Slower but easier to code.
-        @param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types
-        @param verbose: Print transaction info
-        @param authdir: Directory containing authorization files
-
-        @return: DBI object
-        """
 
         self.dbi = dbi
         self.server = server
@@ -94,13 +97,14 @@ class DBI(object):
         self.conn.commit()
 
     def execute(self, expr, vals=None, commit=None):
-        """Run self.cursor.execute(*args) with possibility of verbose output and commit.
+        """
+        Run ``self.cursor.execute(expr, vals)`` with possibility of verbose output and commit.
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
-        @param commit: Commit after executing C{expr} (default = self.autocommit)
+        :param expr: SQL expression to execute
+        :param vals: Values associated with the expression (optional)
+        :param commit: Commit after executing C{expr} (default = self.autocommit)
 
-        @return: None
+        :rtype: None
         """
         if vals is not None:
             args = (expr, vals)
@@ -114,16 +118,18 @@ class DBI(object):
             self.commit()
         
     def fetch(self, expr, vals=None,):
-        """Return a generator that will fetch one row at a time after executing with args.
+        """
+        Return a generator that will fetch one row at a time after executing with args.
 
         Example usage::
+
           for row in db.fetch(expr, vals):
               print row['column']
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
+        :param expr: SQL expression to execute
+        :param vals: Values associated with the expression (optional)
 
-        @return: Generator that will get one row of database as dict() via next()
+        :rtype: Generator that will get one row of database as dict() via next()
         """
         self.execute(expr, vals)
         cols = [x[0] for x in self.cursor.description]
@@ -140,14 +146,15 @@ class DBI(object):
         """Fetch one row after executing args.
 
         Example usage::
+
           for i in range(10):
               row = db.fetchone(expr, vals)
               print row['column']
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
+        :param expr: SQL expression to execute
+        :param vals: Values associated with the expression (optional)
 
-        @return: One row of database as dict()
+        :rtype: One row of database as dict()
         """
         try:
             return self.fetch(expr, vals).next()
@@ -158,13 +165,14 @@ class DBI(object):
         """Fetch all rows after executing args.
 
         Example usage::
+
           rows = db.fetchall(expr, vals)
           print rows[1:5]['column']
 
-        @param expr: SQL expression to execute
-        @param vals: Values associated with the expression (optional)
+        :param expr: SQL expression to execute
+        :param vals: Values associated with the expression (optional)
 
-        @return: All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy
+        :rtype: All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy
         """
         self.execute(expr, vals)
         cols = [x[0] for x in self.cursor.description]
@@ -184,10 +192,12 @@ class DBI(object):
     def insert(self, row, tablename, replace=False, commit=None):
         """Insert data row into table tablename. 
 
-        @param row: Data row for insertion (dict or numpy.record)
-        @param tablename: Table name
-        @param replace: If true then replace database record if it already exists
-        @param commit: Commit insertion (default = self.autocommit)
+        :param row: Data row for insertion (dict or numpy.record)
+        :param tablename: Table name
+        :param replace: If true then replace database record if it already exists
+        :param commit: Commit insertion (default = self.autocommit)
+
+        :rtype: None
         """
 
         # Get the column names, either from numpy methods or from dict keys
