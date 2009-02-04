@@ -217,6 +217,8 @@ class DBI(object):
         if self.dbi == 'sqlite':
             colrepls = ('?',) * len(cols)
         elif self.dbi == 'sybase':
+            if replace:
+                raise ValueError('Using replace=True not allowed for Sybase DBI')
             colrepls = tuple('@'+x for x in cols)
             vals = dict(zip(colrepls, vals))
         else:
