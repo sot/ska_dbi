@@ -29,8 +29,7 @@ class DBI(object):
     Example usage::
 
       db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca',
-               numpy=True, verbose=True)
+      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', verbose=True)
 
     :param dbi:  Database interface name (sqlite, sybase)
     :param server: Server name (or file name for sqlite)
@@ -45,7 +44,7 @@ class DBI(object):
     :rtype: DBI object
     """
     def __init__(self, dbi=None, server=None, user=None, passwd=None, database=None,
-                 numpy=False, autocommit=True, verbose=False,
+                 numpy=True, autocommit=True, verbose=False,
                  authdir='/proj/sot/ska/data/aspect_authorization',
                  **kwargs):
 
@@ -90,7 +89,6 @@ class DBI(object):
             raise ValueError, 'dbi = %s not supported - allowed = %s' % (dbi, supported_dbis)
         
         self.Error = dbapi2.Error
-        self.cursor = self.conn.cursor()
 
     def commit(self):
         """Commit transactions"""
@@ -113,7 +111,11 @@ class DBI(object):
 
         if self.verbose:
             print 'Running:', args
+            
+        # Get a new cursor and run command
+        self.cursor = self.conn.cursor() 
         self.cursor.execute(*args)
+
         if (commit is None and self.autocommit) or commit:
             self.commit()
         
@@ -140,16 +142,17 @@ class DBI(object):
             else:
                 if self.autocommit:
                     self.commit()
+                self.cursor.close()
                 break
             
     def fetchone(self, expr, vals=None,):
-        """Fetch one row after executing args.
+        """Fetch one row after executing args.  This always gets the first row of the
+        SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.
 
         Example usage::
 
-          for i in range(10):
-              row = db.fetchone(expr, vals)
-              print row['column']
+          row = db.fetchone(expr, vals)
+          print row['column']
 
         :param expr: SQL expression to execute
         :param vals: Values associated with the expression (optional)
@@ -157,7 +160,9 @@ class DBI(object):
         :rtype: One row of database as dict()
         """
         try:
-            return self.fetch(expr, vals).next()
+            val = self.fetch(expr, vals).next()
+            self.cursor.close()
+            return val
         except StopIteration:
             return None
             
@@ -180,6 +185,8 @@ class DBI(object):
 
         if self.autocommit:
             self.commit()
+
+        self.cursor.close()
 
         if self.numpy and vals:
             import numpy
@@ -232,4 +239,4 @@ class DBI(object):
 
         # Finally run the insert command
         self.execute(cmd, vals, commit=commit)
-
+        self.cursor.close()
