@@ -79,8 +79,7 @@ class SqliteWithoutNumpy(DBI_BaseTests):
 
 class SybaseWithNumpy(DBI_BaseTests):
     def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_ops',
-                                      database='aca', numpy=True)
+        dbcache[self.classname] = DBI(dbi='sybase', numpy=True)
 
 class SybaseWithoutNumpy(DBI_BaseTests):
     def test_00_connect(self):

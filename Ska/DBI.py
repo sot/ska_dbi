@@ -29,7 +29,8 @@ class DBI(object):
     Example usage::
 
       db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca', verbose=True)
+      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca')
+      db = DBI(dbi='sybase')   # Use defaults (same as above)
 
     :param dbi:  Database interface name (sqlite, sybase)
     :param server: Server name (or file name for sqlite)
@@ -48,23 +49,28 @@ class DBI(object):
                  authdir='/proj/sot/ska/data/aspect_authorization',
                  **kwargs):
 
+        DEFAULTS = {'sqlite': {'server': 'db.sql3'},
+                    'sybase': {'server': 'sybase',
+                               'user': 'aca_ops',
+                               'database': 'aca'}}
+
+        if dbi not in supported_dbis:
+            raise ValueError, 'dbi = %s not supported - allowed = %s' % (dbi, supported_dbis)
+
         self.dbi = dbi
-        self.server = server
-        self.user = user
+        self.server = server or DEFAULTS[dbi].get('server')
+        self.user = user or DEFAULTS[dbi].get('user')
+        self.database = database or DEFAULTS[dbi].get('database')
         self.passwd = passwd
-        self.database = database
         self.numpy = numpy
         self.autocommit = autocommit
         self.verbose = verbose
         
-        if dbi is None:
-            raise TypeError, 'Need a string value for dbi param'
-
         if self.verbose:
             print 'Connecting to', self.dbi, 'server', self.server
 
         if dbi == 'sqlite':
-            from pysqlite2 import dbapi2
+            import sqlite3 as dbapi2
             self.conn = dbapi2.connect(self.server)
 
         elif dbi == 'sybase':
@@ -84,9 +90,6 @@ class DBI(object):
                     pass
 
             self.conn = dbapi2.connect(self.server, self.user, self.passwd, self.database, **kwargs)
-
-        else:
-            raise ValueError, 'dbi = %s not supported - allowed = %s' % (dbi, supported_dbis)
         
         self.Error = dbapi2.Error
 
@@ -228,8 +231,6 @@ class DBI(object):
                 raise ValueError('Using replace=True not allowed for Sybase DBI')
             colrepls = tuple('@'+x for x in cols)
             vals = dict(zip(colrepls, vals))
-        else:
-            raise ValueError, 'Unsupported dbi'
         
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
         replace_str = replace and 'OR REPLACE' or ''
