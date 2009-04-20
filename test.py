@@ -17,6 +17,7 @@ class DBI_BaseTests(unittest.TestCase):
             pass
 
     def test_10_create_table(self):
+        # Test execute with multiple cmds separated by ';\n'
         self.db.execute(open('ska_dbi_test_table.sql').read().strip())
 
     def test_15_insert_data(self):

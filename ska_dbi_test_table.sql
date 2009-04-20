@@ -13,3 +13,6 @@ CREATE TABLE ska_dbi_test_table (
   sim_mode char(6),
   CONSTRAINT pk_id PRIMARY KEY (id)
 ) 
+;
+
+CREATE INDEX obi_idx ON ska_dbi_test_table (obi)

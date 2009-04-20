@@ -101,23 +101,28 @@ class DBI(object):
         """
         Run ``self.cursor.execute(expr, vals)`` with possibility of verbose output and commit.
 
+        Multiple commands can by executed by separating them with ';\n'
+        (semicolon at the end of a line).  If ``vals`` are supplied they will
+        be applied to each of the commands.
+
         :param expr: SQL expression to execute
         :param vals: Values associated with the expression (optional)
         :param commit: Commit after executing C{expr} (default = self.autocommit)
 
         :rtype: None
         """
-        if vals is not None:
-            args = (expr, vals)
-        else:
-            args = (expr,)
-
-        if self.verbose:
-            print 'Running:', args
-            
-        # Get a new cursor and run command
+        # Get a new cursor (implicitly closing any previous cursor)
         self.cursor = self.conn.cursor() 
-        self.cursor.execute(*args)
+
+        for subexpr in expr.split(';\n'):
+            if vals is not None:
+                args = (subexpr, vals)
+            else:
+                args = (subexpr,)
+
+            if self.verbose:
+                print 'Running:', args
+            self.cursor.execute(*args)
 
         if (commit is None and self.autocommit) or commit:
             self.commit()
