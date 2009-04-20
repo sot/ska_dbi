@@ -101,9 +101,9 @@ class DBI(object):
         """
         Run ``self.cursor.execute(expr, vals)`` with possibility of verbose output and commit.
 
-        Multiple commands can by executed by separating them with ';\n'
-        (semicolon at the end of a line).  If ``vals`` are supplied they will
-        be applied to each of the commands.
+        Multiple commands can by executed by separating them with a semicolon at
+        the end of a line.  If ``vals`` are supplied they will be applied to
+        each of the commands.
 
         :param expr: SQL expression to execute
         :param vals: Values associated with the expression (optional)
