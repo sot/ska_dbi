@@ -36,7 +36,7 @@ class DBI(object):
     :param server: Server name (or file name for sqlite)
     :param user: User name (optional)
     :param passwd: Password (optional).  Read from aspect authorization if required and not supplied.
-    :param database: Database name for sybase (optional).
+    :param database: Database name for sybase (default = SKA_DATABASE env. or package default 'aca').
     :param autocommit: Automatically commit after each transaction.  Slower but easier to code.
     :param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types
     :param verbose: Print transaction info
@@ -60,7 +60,9 @@ class DBI(object):
         self.dbi = dbi
         self.server = server or DEFAULTS[dbi].get('server')
         self.user = user or DEFAULTS[dbi].get('user')
-        self.database = database or DEFAULTS[dbi].get('database')
+        self.database = (database
+                         or os.environ.get('SKA_DATABASE')
+                         or DEFAULTS[dbi].get('database'))
         self.passwd = passwd
         self.numpy = numpy
         self.autocommit = autocommit
