@@ -80,12 +80,13 @@ class SqliteWithoutNumpy(DBI_BaseTests):
 
 class SybaseWithNumpy(DBI_BaseTests):
     def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sybase', numpy=True)
+        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_test',
+                                      database='aca_tstdb', numpy=True)
 
 class SybaseWithoutNumpy(DBI_BaseTests):
     def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_ops',
-                                      database='aca', numpy=False)
+        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_test',
+                                      database='aca_tstdb', numpy=False)
 
 def test_all():
     """Return a suite of all tests in the four test classes above"""
