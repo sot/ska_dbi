@@ -22,6 +22,14 @@ def _denumpy(x):
     except:
         return x
 
+
+class NoPasswordError(Exception):
+    """
+    Special Error for the case when password is neither supplied nor available
+    from a file.
+    """
+    pass
+
 class DBI(object):
     """
     Database interface class.
@@ -87,9 +95,9 @@ class DBI(object):
                     self.passwd = open(passwd_file).read().strip()
                     if self.verbose:
                         print 'Using password from', passwd_file
-                except:
-                    # Several things might go wrong, but in any case forget about auto-setting passwd
-                    pass
+                except IOError, e:
+                    raise NoPasswordError("None supplied and unable to read password file %s" % e)
+
 
             self.conn = dbapi2.connect(self.server, self.user, self.passwd, self.database, **kwargs)
         
