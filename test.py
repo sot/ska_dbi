@@ -1,3 +1,6 @@
+"""
+Run with "python test.py".  For some reason "py.test test.py" fails.
+"""
 import os
 import unittest
 from Ska.DBI import DBI
@@ -5,10 +8,22 @@ from Ska.DBI import DBI
 dbfile = 'ska_dbi_test.sql3'
 dbcache = {}
 
+
 class DBI_BaseTests(unittest.TestCase):
     def setUp(self):
         self.classname = str(self.__class__)
         self.db = dbcache.get(self.classname)
+
+    def test_04_context_manager(self):
+        with DBI(dbi='sqlite', server=':memory:') as db:
+            db.execute(open('ska_dbi_test_table.sql').read().strip())
+            for id_ in range(3):
+                data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
+                            pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
+                db.insert(data, 'ska_dbi_test_table')
+            rows = db.fetchall('select * from ska_dbi_test_table')
+            assert len(rows) == 3
+            assert rows[1]['id'] == 1
 
     def test_05_force_drop_table(self):
         try:
