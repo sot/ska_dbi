@@ -105,7 +105,6 @@ class DBI(object):
 
     def __enter__(self):
         """Context manager enter runtime context.  No action required, just return self."""
-        print("Opened!")
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -115,7 +114,6 @@ class DBI(object):
         Close connection.  By the implicit "return None" this will raise any exceptions
         after closing.
         """
-        print("Closing!")
         self.conn.close()
 
     def commit(self):
