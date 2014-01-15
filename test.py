@@ -1,29 +1,28 @@
 """
-Run with "python test.py".  For some reason "py.test test.py" fails.
+Usage:
+
+  % py.test test.py
 """
-import os
-import unittest
+
+import sys  # Used in skipif string conditional
+import pytest
+import numpy as np
 from Ska.DBI import DBI
 
-dbfile = 'ska_dbi_test.sql3'
-dbcache = {}
 
+class DBI_BaseTests(object):
+    def setup_class(cls):
+        cls.db = DBI(**cls.db_config)
 
-class DBI_BaseTests(unittest.TestCase):
-    def setUp(self):
-        self.classname = str(self.__class__)
-        self.db = dbcache.get(self.classname)
-
-    def test_04_context_manager(self):
-        with DBI(dbi='sqlite', server=':memory:') as db:
-            db.execute(open('ska_dbi_test_table.sql').read().strip())
-            for id_ in range(3):
-                data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
-                            pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
-                db.insert(data, 'ska_dbi_test_table')
-            rows = db.fetchall('select * from ska_dbi_test_table')
-            assert len(rows) == 3
-            assert rows[1]['id'] == 1
+    def teardown_class(cls):
+        # No matter what try to drop the testing table.  Normally this should
+        # fail as a result of test_55.
+        try:
+            cls.db.execute('drop table ska_dbi_test_table')
+        except:
+            pass
+        cls.db.cursor.close()
+        cls.db.conn.close()
 
     def test_05_force_drop_table(self):
         try:
@@ -37,14 +36,14 @@ class DBI_BaseTests(unittest.TestCase):
 
     def test_15_insert_data(self):
         for id_ in range(3):
-            data = dict(id=id_, tstart=2.+id_, tstop=3.+id_, obsid=4+id_, pcad_mode='npnt',
-                        aspect_mode='kalm', sim_mode='stop')
+            data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
+                        pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
             self.db.insert(data, 'ska_dbi_test_table')
 
     def test_20_fetchall(self):
         self.rows = self.db.fetchall('select * from ska_dbi_test_table')
-        self.assertEqual(len(self.rows), 3)
-        self.assertEqual(self.rows[1]['id'], 1)
+        assert len(self.rows) == 3
+        assert self.rows[1]['id'] == 1
 
     def test_25_insert_row_from_db(self):
         rows = self.db.fetchall('select * from ska_dbi_test_table')
@@ -52,66 +51,62 @@ class DBI_BaseTests(unittest.TestCase):
         row['id'] += 10
         row['tstart'] = 5
         self.db.insert(row, 'ska_dbi_test_table')
-        
+
     def test_30_fetchone(self):
         row = self.db.fetchone('select * from ska_dbi_test_table')
-        self.assertEqual(row['obsid'], 4)
+        assert row['obsid'] == 4
 
     def test_35_fetch(self):
         for i, row in enumerate(self.db.fetch('select * from ska_dbi_test_table')):
-            self.assertAlmostEqual(row['tstart'], 2.+i)
+            assert np.allclose(row['tstart'], 2. + i)
 
     def test_40_fetch_null(self):
         for row in self.db.fetch('select * from ska_dbi_test_table where id=100000'):
-            self.fail()
+            assert False
 
     def test_45_fetchone_null(self):
         row = self.db.fetchone('select * from ska_dbi_test_table where id=100000')
-        self.assertEqual(row, None)
+        assert row is None
 
     def test_50_fetchall_null(self):
         rows = self.db.fetchall('select * from ska_dbi_test_table where id=100000')
-        self.assertEqual(len(rows), 0)
+        assert len(rows) == 0
 
     def test_55_drop_table(self):
         self.db.execute('drop table ska_dbi_test_table')
 
-    def test_60_disconnect(self):
-        self.db.cursor.close()
-        self.db.conn.close()
-        del dbcache[self.classname]
 
-    def test_65_cleanup(self):
-        if os.path.exists(dbfile):
-            os.unlink(dbfile)
+class TestSqliteWithNumpy(DBI_BaseTests):
+    db_config = dict(dbi='sqlite', server=':memory:', numpy=True)
 
-class SqliteWithNumpy(DBI_BaseTests):
-    def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sqlite', server=dbfile, numpy=True)
 
-class SqliteWithoutNumpy(DBI_BaseTests):
-    def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sqlite', server=dbfile, numpy=False)
+class TestSqliteWithoutNumpy(DBI_BaseTests):
+    db_config = dict(dbi='sqlite', server=':memory:', numpy=False)
 
-class SybaseWithNumpy(DBI_BaseTests):
-    def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_test',
-                                      database='aca_tstdb', numpy=True)
 
-class SybaseWithoutNumpy(DBI_BaseTests):
-    def test_00_connect(self):
-        dbcache[self.classname] = DBI(dbi='sybase', server='sybase', user='aca_test',
-                                      database='aca_tstdb', numpy=False)
+@pytest.mark.skipif('sys.version_info >= (3, 0)', reason='No Sybase support for Python 3')
+class TestSybaseWithNumpy(DBI_BaseTests):
+    db_config = dict(dbi='sybase', server='sybase', user='aca_test',
+                     database='aca_tstdb', numpy=True)
 
-def test_all():
-    """Return a suite of all tests in the four test classes above"""
-    suite = unittest.TestSuite()
-    for testclass in (SqliteWithNumpy, SqliteWithoutNumpy, SybaseWithNumpy, SybaseWithoutNumpy):
-        # Get all tests from each test class and add to suite
-        tests = unittest.TestLoader().loadTestsFromTestCase(testclass)
-        suite.addTest(tests)
-    return suite
 
-if __name__ == '__main__':
-    unittest.TextTestRunner(verbosity=2).run(test_all())
-    
+@pytest.mark.skipif('sys.version_info >= (3, 0)', reason='No Sybase support for Python 3')
+class TestSybaseWithoutNumpy(DBI_BaseTests):
+    db_config = dict(dbi='sybase', server='sybase', user='aca_test',
+                     database='aca_tstdb', numpy=False)
+
+
+def test_context_manager():
+    with DBI(dbi='sqlite', server=':memory:') as db:
+        db.execute(open('ska_dbi_test_table.sql').read().strip())
+        for id_ in range(3):
+            data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
+                        pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
+            db.insert(data, 'ska_dbi_test_table')
+        rows = db.fetchall('select * from ska_dbi_test_table')
+        assert len(rows) == 3
+        assert rows[1]['id'] == 1
+
+    # check that access fails now
+    with pytest.raises(Exception):
+        rows = db.fetchall('select * from ska_dbi_test_table')
