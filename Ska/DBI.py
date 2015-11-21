@@ -11,6 +11,8 @@ Features:
 
 import os
 
+__version__ = '0.8.1'
+
 supported_dbis = ('sqlite', 'sybase')
 
 def _denumpy(x):
