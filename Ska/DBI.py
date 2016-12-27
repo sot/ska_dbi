@@ -8,12 +8,16 @@ Features:
 - Verbose mode to show transaction information.
 - Insert method smooths over syntax differences between sqlite and sybase.
 """
+from __future__ import print_function, division, absolute_import
 
 import os
+from six.moves import zip
+from six import next
 
 __version__ = '0.8.1'
 
 supported_dbis = ('sqlite', 'sybase')
+
 
 def _denumpy(x):
     """
@@ -31,6 +35,7 @@ class NoPasswordError(Exception):
     from a file.
     """
     pass
+
 
 class DBI(object):
     """
@@ -65,7 +70,7 @@ class DBI(object):
                                'database': 'aca'}}
 
         if dbi not in supported_dbis:
-            raise ValueError, 'dbi = %s not supported - allowed = %s' % (dbi, supported_dbis)
+            raise ValueError('dbi = %s not supported - allowed = %s' % (dbi, supported_dbis))
 
         self.dbi = dbi
         self.server = server or DEFAULTS[dbi].get('server')
@@ -77,9 +82,9 @@ class DBI(object):
         self.numpy = numpy
         self.autocommit = autocommit
         self.verbose = verbose
-        
+
         if self.verbose:
-            print 'Connecting to', self.dbi, 'server', self.server
+            print('Connecting to', self.dbi, 'server', self.server)
 
         if dbi == 'sqlite':
             import sqlite3 as dbapi2
@@ -96,13 +101,13 @@ class DBI(object):
                     passwd_file = os.path.join(authdir, '%s-%s-%s' % (self.server, self.database, self.user))
                     self.passwd = open(passwd_file).read().strip()
                     if self.verbose:
-                        print 'Using password from', passwd_file
-                except IOError, e:
+                        print('Using password from', passwd_file)
+                except IOError as e:
                     raise NoPasswordError("None supplied and unable to read password file %s" % e)
 
 
             self.conn = dbapi2.connect(self.server, self.user, self.passwd, self.database, **kwargs)
-        
+
         self.Error = dbapi2.Error
 
     def __enter__(self):
@@ -137,7 +142,7 @@ class DBI(object):
         :rtype: None
         """
         # Get a new cursor (implicitly closing any previous cursor)
-        self.cursor = self.conn.cursor() 
+        self.cursor = self.conn.cursor()
 
         for subexpr in expr.split(';\n'):
             if vals is not None:
@@ -146,12 +151,12 @@ class DBI(object):
                 args = (subexpr,)
 
             if self.verbose:
-                print 'Running:', args
+                print('Running:', args)
             self.cursor.execute(*args)
 
         if (commit is None and self.autocommit) or commit:
             self.commit()
-        
+
     def fetch(self, expr, vals=None,):
         """
         Return a generator that will fetch one row at a time after executing with args.
@@ -177,7 +182,7 @@ class DBI(object):
                     self.commit()
                 self.cursor.close()
                 break
-            
+
     def fetchone(self, expr, vals=None,):
         """Fetch one row after executing args.  This always gets the first row of the
         SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.
@@ -193,12 +198,12 @@ class DBI(object):
         :rtype: One row of database as dict()
         """
         try:
-            val = self.fetch(expr, vals).next()
+            val = next(self.fetch(expr, vals))
             self.cursor.close()
             return val
         except StopIteration:
             return None
-            
+
     def fetchall(self, expr, vals=None):
         """Fetch all rows after executing args.
 
@@ -230,7 +235,7 @@ class DBI(object):
             return [dict(zip(cols, x)) for x in vals]
 
     def insert(self, row, tablename, replace=False, commit=None):
-        """Insert data row into table tablename. 
+        """Insert data row into table tablename.
 
         :param row: Data row for insertion (dict or numpy.record)
         :param tablename: Table name
@@ -261,7 +266,7 @@ class DBI(object):
                 raise ValueError('Using replace=True not allowed for Sybase DBI')
             colrepls = tuple('@'+x for x in cols)
             vals = dict(zip(colrepls, vals))
-        
+
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
         replace_str = replace and 'OR REPLACE' or ''
         cmd = insert_str % (replace_str, tablename,
