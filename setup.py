@@ -2,15 +2,18 @@ from setuptools import setup
 
 from Ska.DBI import __version__
 
+try:
+    from testr.setup_helper import cmdclass
+except ImportError:
+    cmdclass = {}
+
 setup(name='Ska.DBI',
-      author = 'Tom Aldcroft',
+      author='Tom Aldcroft',
       description='Database interface utilities',
-      author_email = 'taldcroft@cfa.harvard.edu',
-      test_suite="test.test_all",
-      py_modules = ['Ska.DBI'],
+      author_email='taldcroft@cfa.harvard.edu',
       version=__version__,
       zip_safe=False,
-      packages=['Ska'],
-      package_dir={'Ska' : 'Ska'},
-      package_data={}
+      packages=['Ska', 'Ska.DBI', 'Ska.DBI.tests'],
+      tests_require=['pytest'],
+      cmdclass=cmdclass,
       )

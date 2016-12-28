@@ -14,8 +14,6 @@ import os
 from six.moves import zip
 from six import next
 
-__version__ = '3.8.1'
-
 supported_dbis = ('sqlite', 'sybase')
 
 
