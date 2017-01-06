@@ -14,6 +14,7 @@ setup(name='Ska.DBI',
       version=__version__,
       zip_safe=False,
       packages=['Ska', 'Ska.DBI', 'Ska.DBI.tests'],
+      package_data={'Ska.DBI.tests': ['ska_dbi_test_table.sql']},
       tests_require=['pytest'],
       cmdclass=cmdclass,
       )
