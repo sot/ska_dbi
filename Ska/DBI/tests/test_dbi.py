@@ -4,10 +4,16 @@ Usage:
   % py.test test.py
 """
 
-import sys  # Used in skipif string conditional
+import six
+import os
 import pytest
 import numpy as np
 from Ska.DBI import DBI
+
+HAS_SYBASE = six.PY2
+
+with open(os.path.join(os.path.dirname(__file__), 'ska_dbi_test_table.sql')) as fh:
+    TEST_TABLE_SQL = fh.read().strip()
 
 
 class DBI_BaseTests(object):
@@ -32,7 +38,7 @@ class DBI_BaseTests(object):
 
     def test_10_create_table(self):
         # Test execute with multiple cmds separated by ';\n'
-        self.db.execute(open('ska_dbi_test_table.sql').read().strip())
+        self.db.execute(TEST_TABLE_SQL)
 
     def test_15_insert_data(self):
         for id_ in range(3):
@@ -84,13 +90,13 @@ class TestSqliteWithoutNumpy(DBI_BaseTests):
     db_config = dict(dbi='sqlite', server=':memory:', numpy=False)
 
 
-@pytest.mark.skipif('sys.version_info >= (3, 0)', reason='No Sybase support for Python 3')
+@pytest.mark.skipif('not HAS_SYBASE', reason='No Sybase support for Python 3')
 class TestSybaseWithNumpy(DBI_BaseTests):
     db_config = dict(dbi='sybase', server='sybase', user='aca_test',
                      database='aca_tstdb', numpy=True)
 
 
-@pytest.mark.skipif('sys.version_info >= (3, 0)', reason='No Sybase support for Python 3')
+@pytest.mark.skipif('not HAS_SYBASE', reason='No Sybase support for Python 3')
 class TestSybaseWithoutNumpy(DBI_BaseTests):
     db_config = dict(dbi='sybase', server='sybase', user='aca_test',
                      database='aca_tstdb', numpy=False)
@@ -98,7 +104,7 @@ class TestSybaseWithoutNumpy(DBI_BaseTests):
 
 def test_context_manager():
     with DBI(dbi='sqlite', server=':memory:') as db:
-        db.execute(open('ska_dbi_test_table.sql').read().strip())
+        db.execute(TEST_TABLE_SQL)
         for id_ in range(3):
             data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
                         pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
