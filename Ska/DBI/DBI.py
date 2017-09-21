@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 Ska.DBI provides simple methods for database access and data insertion.
 Features:
