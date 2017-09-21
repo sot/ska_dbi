@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .DBI import *
 
 __version__ = '3.8.2'
