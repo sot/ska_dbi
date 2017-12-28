@@ -84,6 +84,8 @@ class DBI(object):
 
         if dbi == 'sqlite':
             import sqlite3 as dbapi2
+            if not os.path.exists(self.server):
+                raise dbapi2.OperationalError("Database file {} does not exist".format(self.server))
             self.conn = dbapi2.connect(self.server)
 
         elif dbi == 'sybase':
