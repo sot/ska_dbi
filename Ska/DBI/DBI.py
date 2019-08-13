@@ -9,11 +9,8 @@ Features:
 - Verbose mode to show transaction information.
 - Insert method smooths over syntax differences between sqlite and sybase.
 """
-from __future__ import print_function, division, absolute_import
-
 import os
-from six.moves import zip
-from six import next
+import sys
 
 supported_dbis = ('sqlite', 'sybase')
 
