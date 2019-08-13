@@ -87,11 +87,15 @@ class DBI(object):
             self.conn = dbapi2.connect(self.server)
 
         elif dbi == 'sybase':
-            # HEAD-specific initialization of SYBASE envvar if needed
-            if 'SYBASE' not in os.environ:
-                os.environ['SYBASE'] = '/soft/SYBASE_OCS15'
-
-            import Sybase as dbapi2
+            if 'SYBASE_OCS' not in os.environ:
+                raise ValueError(
+                    'SYBASE_OCS env variable not defined. sybase dbi works only in production ska.')
+            modulepath = os.path.join(os.environ['SYBASE'], os.environ['SYBASE_OCS'],
+                                      'python', 'python34_64r', 'lib')
+            if not os.path.exists(modulepath):
+                raise ValueError(f"{modulepath} does not exist on system.")
+            sys.path.insert(0, modulepath)
+            import sybpydb as dbapi2
             if self.passwd is None:
                 try:
                     passwd_file = os.path.join(authdir, '%s-%s-%s' % (self.server, self.database, self.user))
@@ -100,9 +104,7 @@ class DBI(object):
                         print('Using password from', passwd_file)
                 except IOError as e:
                     raise NoPasswordError("None supplied and unable to read password file %s" % e)
-
-
-            self.conn = dbapi2.connect(self.server, self.user, self.passwd, self.database, **kwargs)
+            self.conn = dbapi2.connect(servername=self.server, user=self.user, password=self.passwd)
 
         self.Error = dbapi2.Error
 
@@ -140,6 +142,11 @@ class DBI(object):
         # Get a new cursor (implicitly closing any previous cursor)
         self.cursor = self.conn.cursor()
 
+        # Sybase dbi does not handle database via the connection.
+        # Must be requested via the cursor.
+        if self.dbi == 'sybase':
+            self.cursor.execute(f'use {self.database}')
+
         for subexpr in expr.split(';\n'):
             if vals is not None:
                 args = (subexpr, vals)
@@ -167,7 +174,7 @@ class DBI(object):
 
         :rtype: Generator that will get one row of database as dict() via next()
         """
-        self.execute(expr, vals)
+        self.execute(expr, vals, commit=False)
         cols = [x[0] for x in self.cursor.description]
         while True:
             vals = self.cursor.fetchone()
@@ -213,7 +220,7 @@ class DBI(object):
 
         :rtype: All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy
         """
-        self.execute(expr, vals)
+        self.execute(expr, vals, commit=False)
         cols = [x[0] for x in self.cursor.description]
         vals = self.cursor.fetchall()
 
@@ -255,13 +262,9 @@ class DBI(object):
 
         # Create the insert command depending on dbi.  Start with the column
         # value replacement strings
-        if self.dbi == 'sqlite':
-            colrepls = ('?',) * len(cols)
-        elif self.dbi == 'sybase':
-            if replace:
-                raise ValueError('Using replace=True not allowed for Sybase DBI')
-            colrepls = tuple('@'+x for x in cols)
-            vals = dict(zip(colrepls, vals))
+        colrepls = ('?',) * len(cols)
+        if self.dbi == 'sybase' and replace:
+            raise ValueError('Using replace=True not allowed for Sybase DBI')
 
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
         replace_str = replace and 'OR REPLACE' or ''
