@@ -5,13 +5,20 @@ Usage:
   % py.test test.py
 """
 
-import six
 import os
 import pytest
 import numpy as np
 from Ska.DBI import DBI
 
-HAS_SYBASE = six.PY2
+
+# If the SYBASE_OCS environment variable is set (from flt_envs) and the module exists
+# on the system, do the Sybase tests.
+HAS_SYBASE = ('SYBASE_OCS' in os.environ and
+              os.path.exists(
+                os.path.join(os.environ['SYBASE'],
+                             os.environ['SYBASE_OCS'],
+                             'python', 'python34_64r', 'lib', 'sybpydb.so')))
+
 
 with open(os.path.join(os.path.dirname(__file__), 'ska_dbi_test_table.sql')) as fh:
     TEST_TABLE_SQL = fh.read().strip()
