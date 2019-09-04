@@ -11,6 +11,7 @@ Features:
 """
 import os
 import sys
+import warnings
 
 supported_dbis = ('sqlite', 'sybase')
 
@@ -86,10 +87,10 @@ class DBI(object):
             import sqlite3 as dbapi2
 
             # If the server is a file (not the special ':memory:' device)
-            # and that file does not exist, throw an error with the filename.
+            # and that file does not exist, warn.
             if self.server != ':memory:' and not os.path.exists(self.server):
-                raise dbapi2.OperationalError(
-                    "Database file {} does not exist".format(self.server))
+                warnings.warn(
+                    f"Database file missing: {self.server} does not exist.  Creating.")
             self.conn = dbapi2.connect(self.server)
 
         elif dbi == 'sybase':
