@@ -7,6 +7,7 @@ Usage:
 
 import os
 import pytest
+import tempfile
 import numpy as np
 from Ska.DBI import DBI
 
@@ -37,6 +38,12 @@ class DBI_BaseTests(object):
             pass
         cls.db.cursor.close()
         cls.db.conn.close()
+
+    # Run an empty test to get the warning for no file (if running on a file)
+    # Ignore that warning in these tests.
+    @pytest.mark.filterwarnings("ignore:Database file missing")
+    def test_00_warning(self):
+        pass
 
     def test_05_force_drop_table(self):
         try:
@@ -90,11 +97,23 @@ class DBI_BaseTests(object):
         self.db.execute('drop table ska_dbi_test_table')
 
 
-class TestSqliteWithNumpy(DBI_BaseTests):
+class TestSqliteWithNumpyFile(DBI_BaseTests):
+    fh, fn = tempfile.mkstemp(suffix='.db3')
+    db_config = dict(dbi='sqlite', server=fn, numpy=True)
+    os.unlink(fn)
+
+
+class TestSqliteWithoutNumpyFile(DBI_BaseTests):
+    fh, fn = tempfile.mkstemp(suffix='.db3')
+    db_config = dict(dbi='sqlite', server=fn, numpy=False)
+    os.unlink(fn)
+
+
+class TestSqliteWithNumpyMemory(DBI_BaseTests):
     db_config = dict(dbi='sqlite', server=':memory:', numpy=True)
 
 
-class TestSqliteWithoutNumpy(DBI_BaseTests):
+class TestSqliteWithoutNumpyMemory(DBI_BaseTests):
     db_config = dict(dbi='sqlite', server=':memory:', numpy=False)
 
 
