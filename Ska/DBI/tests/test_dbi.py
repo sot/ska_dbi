@@ -8,6 +8,7 @@ Usage:
 import os
 import pytest
 import numpy as np
+import tempfile
 from Ska.DBI import DBI
 
 
@@ -91,11 +92,15 @@ class DBI_BaseTests(object):
 
 
 class TestSqliteWithNumpy(DBI_BaseTests):
-    db_config = dict(dbi='sqlite', server=':memory:', numpy=True)
+    fh, fn = tempfile.mkstemp(suffix='.db3')
+    db_config = dict(dbi='sqlite', server=fn, numpy=True)
+    os.unlink(fn)
 
 
 class TestSqliteWithoutNumpy(DBI_BaseTests):
-    db_config = dict(dbi='sqlite', server=':memory:', numpy=False)
+    fh, fn = tempfile.mkstemp(suffix='.db3')
+    db_config = dict(dbi='sqlite', server=fn, numpy=False)
+    os.unlink(fn)
 
 
 @pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
