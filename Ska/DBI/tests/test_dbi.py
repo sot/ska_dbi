@@ -98,13 +98,13 @@ class TestSqliteWithoutNumpy(DBI_BaseTests):
     db_config = dict(dbi='sqlite', server=':memory:', numpy=False)
 
 
-@pytest.mark.skipif('not HAS_SYBASE', reason='No Sybase support for Python 3')
+@pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
 class TestSybaseWithNumpy(DBI_BaseTests):
     db_config = dict(dbi='sybase', server='sybase', user='aca_test',
                      database='aca_tstdb', numpy=True)
 
 
-@pytest.mark.skipif('not HAS_SYBASE', reason='No Sybase support for Python 3')
+@pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
 class TestSybaseWithoutNumpy(DBI_BaseTests):
     db_config = dict(dbi='sybase', server='sybase', user='aca_test',
                      database='aca_tstdb', numpy=False)
