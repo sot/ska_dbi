@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .DBI import *
 
-__version__ = '3.8.2'
+__version__ = '4.0'
 
 
 def test(*args, **kwargs):
