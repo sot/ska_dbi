@@ -9,6 +9,7 @@ import os
 import pytest
 import numpy as np
 import tempfile
+
 from Ska.DBI import DBI
 
 
@@ -27,6 +28,9 @@ with open(os.path.join(os.path.dirname(__file__), 'ska_dbi_test_table.sql')) as 
 
 class DBI_BaseTests(object):
     def setup_class(cls):
+        if cls.db_config['dbi'] == 'sqlite':
+            cls.tmpdir = tempfile.TemporaryDirectory()
+            cls.db_config['server'] = os.path.join(cls.tmpdir.name, 'sqlite3.db3')
         cls.db = DBI(**cls.db_config)
 
     def teardown_class(cls):
@@ -38,6 +42,7 @@ class DBI_BaseTests(object):
             pass
         cls.db.cursor.close()
         cls.db.conn.close()
+
 
     def test_05_force_drop_table(self):
         try:
@@ -92,15 +97,11 @@ class DBI_BaseTests(object):
 
 
 class TestSqliteWithNumpy(DBI_BaseTests):
-    fh, fn = tempfile.mkstemp(suffix='.db3')
-    db_config = dict(dbi='sqlite', server=fn, numpy=True)
-    os.unlink(fn)
+    db_config = dict(dbi='sqlite', numpy=True)
 
 
 class TestSqliteWithoutNumpy(DBI_BaseTests):
-    fh, fn = tempfile.mkstemp(suffix='.db3')
-    db_config = dict(dbi='sqlite', server=fn, numpy=False)
-    os.unlink(fn)
+    db_config = dict(dbi='sqlite', numpy=False)
 
 
 @pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
