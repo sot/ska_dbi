@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ska.DBI.DBI &#8212; Ska.DBI 4.0.3.dev7+g9876d66 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Ska</span><span id="logotext3">.DBI</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1"></span><span id="logotext2"></span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Ska.DBI 4.0.3.dev7+g9876d66 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Ska.DBI.DBI</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Ska.DBI provides simple methods for database access and data insertion.</span>
+<span class="sd">Features:</span>
+
+<span class="sd">- Sqlite and sybase connections are supported.</span>
+<span class="sd">- Automatic fetching of Ska database account passwords.</span>
+<span class="sd">- Integration with numpy record arrays.</span>
+<span class="sd">- Verbose mode to show transaction information.</span>
+<span class="sd">- Insert method smooths over syntax differences between sqlite and sybase.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">supported_dbis</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="s1">&#39;sybase&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="_denumpy"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI._denumpy">[docs]</a><span class="k">def</span> <span class="nf">_denumpy</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Try using the numpy.tolist() to convert to native python type.</span>
+<span class="sd">    DBI&#39;s can&#39;t typically handle numpy vals.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x</span></div>
+
+
+<span class="k">class</span> <span class="nc">NoPasswordError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Special Error for the case when password is neither supplied nor available</span>
+<span class="sd">    from a file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+
+<div class="viewcode-block" id="DBI"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI">[docs]</a><span class="k">class</span> <span class="nc">DBI</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Database interface class.</span>
+
+<span class="sd">    Example usage::</span>
+
+<span class="sd">      db = DBI(dbi=&#39;sqlite&#39;, server=dbfile, numpy=False, verbose=True)</span>
+<span class="sd">      db = DBI(dbi=&#39;sybase&#39;, server=&#39;sybase&#39;, user=&#39;aca_ops&#39;, database=&#39;aca&#39;)</span>
+<span class="sd">      db = DBI(dbi=&#39;sybase&#39;)   # Use defaults (same as above)</span>
+
+<span class="sd">    :param dbi:  Database interface name (sqlite, sybase)</span>
+<span class="sd">    :param server: Server name (or file name for sqlite)</span>
+<span class="sd">    :param user: User name (optional)</span>
+<span class="sd">    :param passwd: Password (optional).  Read from aspect authorization if required and not supplied.</span>
+<span class="sd">    :param database: Database name for sybase (default = SKA_DATABASE env. or package default &#39;aca&#39;).</span>
+<span class="sd">    :param autocommit: Automatically commit after each transaction.  Slower but easier to code.</span>
+<span class="sd">    :param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types</span>
+<span class="sd">    :param verbose: Print transaction info</span>
+<span class="sd">    :param authdir: Directory containing authorization files</span>
+
+<span class="sd">    :rtype: DBI object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dbi</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">passwd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">autocommit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">authdir</span><span class="o">=</span><span class="s1">&#39;/proj/sot/ska/data/aspect_authorization&#39;</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">DEFAULTS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sqlite&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;server&#39;</span><span class="p">:</span> <span class="s1">&#39;db.sql3&#39;</span><span class="p">},</span>
+                    <span class="s1">&#39;sybase&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;server&#39;</span><span class="p">:</span> <span class="s1">&#39;sybase&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="s1">&#39;aca_ops&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;database&#39;</span><span class="p">:</span> <span class="s1">&#39;aca&#39;</span><span class="p">}}</span>
+
+        <span class="k">if</span> <span class="n">dbi</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_dbis</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;dbi = </span><span class="si">%s</span><span class="s1"> not supported - allowed = </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">dbi</span><span class="p">,</span> <span class="n">supported_dbis</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbi</span> <span class="o">=</span> <span class="n">dbi</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server</span> <span class="o">=</span> <span class="n">server</span> <span class="ow">or</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="n">dbi</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;server&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user</span> <span class="o">=</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="n">dbi</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;user&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">database</span> <span class="o">=</span> <span class="p">(</span><span class="n">database</span>
+                         <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;SKA_DATABASE&#39;</span><span class="p">)</span>
+                         <span class="ow">or</span> <span class="n">DEFAULTS</span><span class="p">[</span><span class="n">dbi</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;database&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="n">passwd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span> <span class="o">=</span> <span class="n">numpy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">autocommit</span> <span class="o">=</span> <span class="n">autocommit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connecting to&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbi</span><span class="p">,</span> <span class="s1">&#39;server&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">dbi</span> <span class="o">==</span> <span class="s1">&#39;sqlite&#39;</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">sqlite3</span> <span class="k">as</span> <span class="nn">dbapi2</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">dbapi2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">dbi</span> <span class="o">==</span> <span class="s1">&#39;sybase&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s1">&#39;SYBASE_OCS&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;SYBASE_OCS env variable not defined. sybase dbi works only in production ska.&#39;</span><span class="p">)</span>
+            <span class="n">modulepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SYBASE&#39;</span><span class="p">],</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;SYBASE_OCS&#39;</span><span class="p">],</span>
+                                      <span class="s1">&#39;python&#39;</span><span class="p">,</span> <span class="s1">&#39;python34_64r&#39;</span><span class="p">,</span> <span class="s1">&#39;lib&#39;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">modulepath</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">modulepath</span><span class="si">}</span><span class="s2"> does not exist on system.&quot;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">modulepath</span><span class="p">)</span>
+            <span class="kn">import</span> <span class="nn">sybpydb</span> <span class="k">as</span> <span class="nn">dbapi2</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">passwd_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">authdir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">-</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">passwd</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">passwd_file</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Using password from&#39;</span><span class="p">,</span> <span class="n">passwd_file</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">IOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">NoPasswordError</span><span class="p">(</span><span class="s2">&quot;None supplied and unable to read password file </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">dbapi2</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">servername</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">server</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">user</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">passwd</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Error</span> <span class="o">=</span> <span class="n">dbapi2</span><span class="o">.</span><span class="n">Error</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Context manager enter runtime context.  No action required, just return self.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Context manager exit run time context.</span>
+
+<span class="sd">        Close connection.  By the implicit &quot;return None&quot; this will raise any exceptions</span>
+<span class="sd">        after closing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DBI.commit"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.commit">[docs]</a>    <span class="k">def</span> <span class="nf">commit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Commit transactions&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBI.execute"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.execute">[docs]</a>    <span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run ``self.cursor.execute(expr, vals)`` with possibility of verbose output and commit.</span>
+
+<span class="sd">        Multiple commands can by executed by separating them with a semicolon at</span>
+<span class="sd">        the end of a line.  If ``vals`` are supplied they will be applied to</span>
+<span class="sd">        each of the commands.</span>
+
+<span class="sd">        :param expr: SQL expression to execute</span>
+<span class="sd">        :param vals: Values associated with the expression (optional)</span>
+<span class="sd">        :param commit: Commit after executing C{expr} (default = self.autocommit)</span>
+
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get a new cursor (implicitly closing any previous cursor)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span>
+
+        <span class="c1"># Sybase dbi does not handle database via the connection.</span>
+        <span class="c1"># Must be requested via the cursor.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbi</span> <span class="o">==</span> <span class="s1">&#39;sybase&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;use </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">database</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">subexpr</span> <span class="ow">in</span> <span class="n">expr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">vals</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">subexpr</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="n">subexpr</span><span class="p">,)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running:&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">commit</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommit</span><span class="p">)</span> <span class="ow">or</span> <span class="n">commit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DBI.fetch"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.fetch">[docs]</a>    <span class="k">def</span> <span class="nf">fetch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a generator that will fetch one row at a time after executing with args.</span>
+
+<span class="sd">        Example usage::</span>
+
+<span class="sd">          for row in db.fetch(expr, vals):</span>
+<span class="sd">              print row[&#39;column&#39;]</span>
+
+<span class="sd">        :param expr: SQL expression to execute</span>
+<span class="sd">        :param vals: Values associated with the expression (optional)</span>
+
+<span class="sd">        :rtype: Generator that will get one row of database as dict() via next()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">description</span><span class="p">]</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">vals</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">vals</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommit</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">break</span></div>
+
+<div class="viewcode-block" id="DBI.fetchone"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.fetchone">[docs]</a>    <span class="k">def</span> <span class="nf">fetchone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch one row after executing args.  This always gets the first row of the</span>
+<span class="sd">        SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</span>
+
+<span class="sd">        Example usage::</span>
+
+<span class="sd">          row = db.fetchone(expr, vals)</span>
+<span class="sd">          print row[&#39;column&#39;]</span>
+
+<span class="sd">        :param expr: SQL expression to execute</span>
+<span class="sd">        :param vals: Values associated with the expression (optional)</span>
+
+<span class="sd">        :rtype: One row of database as dict()</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">val</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DBI.fetchall"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.fetchall">[docs]</a>    <span class="k">def</span> <span class="nf">fetchall</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fetch all rows after executing args.</span>
+
+<span class="sd">        Example usage::</span>
+
+<span class="sd">          rows = db.fetchall(expr, vals)</span>
+<span class="sd">          print rows[1:5][&#39;column&#39;]</span>
+
+<span class="sd">        :param expr: SQL expression to execute</span>
+<span class="sd">        :param vals: Values associated with the expression (optional)</span>
+
+<span class="sd">        :rtype: All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">description</span><span class="p">]</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">autocommit</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span> <span class="ow">and</span> <span class="n">vals</span><span class="p">:</span>
+            <span class="kn">import</span> <span class="nn">numpy</span>
+            <span class="c1"># Would be good to set dtype explicitly from database info instead of</span>
+            <span class="c1"># having numpy auto-determine types</span>
+            <span class="k">return</span> <span class="n">numpy</span><span class="o">.</span><span class="n">rec</span><span class="o">.</span><span class="n">fromrecords</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DBI.insert"><a class="viewcode-back" href="../../../index.html#Ska.DBI.DBI.DBI.insert">[docs]</a>    <span class="k">def</span> <span class="nf">insert</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">tablename</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Insert data row into table tablename.</span>
+
+<span class="sd">        :param row: Data row for insertion (dict or numpy.record)</span>
+<span class="sd">        :param tablename: Table name</span>
+<span class="sd">        :param replace: If true then replace database record if it already exists</span>
+<span class="sd">        :param commit: Commit insertion (default = self.autocommit)</span>
+
+<span class="sd">        :rtype: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Get the column names, either from numpy methods or from dict keys</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">row</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="c1"># Make a tuple of the values to insert</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numpy</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">_denumpy</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">vals</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">)</span>
+
+        <span class="c1"># Create the insert command depending on dbi.  Start with the column</span>
+        <span class="c1"># value replacement strings</span>
+        <span class="n">colrepls</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;?&#39;</span><span class="p">,)</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbi</span> <span class="o">==</span> <span class="s1">&#39;sybase&#39;</span> <span class="ow">and</span> <span class="n">replace</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Using replace=True not allowed for Sybase DBI&#39;</span><span class="p">)</span>
+
+        <span class="n">insert_str</span> <span class="o">=</span> <span class="s2">&quot;INSERT </span><span class="si">%s</span><span class="s2"> INTO </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2">) VALUES (</span><span class="si">%s</span><span class="s2">)&quot;</span>
+        <span class="n">replace_str</span> <span class="o">=</span> <span class="n">replace</span> <span class="ow">and</span> <span class="s1">&#39;OR REPLACE&#39;</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">insert_str</span> <span class="o">%</span> <span class="p">(</span><span class="n">replace_str</span><span class="p">,</span> <span class="n">tablename</span><span class="p">,</span>
+                            <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cols</span><span class="p">),</span>
+                            <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">colrepls</span><span class="p">))</span>
+
+        <span class="c1"># Finally run the insert command</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">vals</span><span class="p">,</span> <span class="n">commit</span><span class="o">=</span><span class="n">commit</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2020, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
