@@ -1,4 +1,4 @@
--- Test table for Ska.DBI
+-- Test table for ska_dbi
 
 CREATE TABLE ska_dbi_test_table (
   id    int not null,
@@ -12,7 +12,7 @@ CREATE TABLE ska_dbi_test_table (
   aspect_mode varchar(12),
   sim_mode char(6),
   CONSTRAINT pk_id PRIMARY KEY (id)
-) 
+)
 ;
 
 CREATE INDEX obi_idx ON ska_dbi_test_table (obi)

@@ -3,7 +3,7 @@ import ska_helpers
 
 from .DBI import *
 
-__version__ = ska_helpers.get_version('Ska.DBI')
+__version__ = ska_helpers.get_version('ska_dbi')
 
 
 def test(*args, **kwargs):
