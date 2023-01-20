@@ -91,7 +91,7 @@ class DBI(object):
                 raise ValueError(
                     'SYBASE_OCS env variable not defined. sybase dbi works only in production ska.')
             modulepath = os.path.join(os.environ['SYBASE'], os.environ['SYBASE_OCS'],
-                                      'python', 'python34_64r', 'lib')
+                                      'python', 'python39_64r', 'lib')
             if not os.path.exists(modulepath):
                 raise ValueError(f"{modulepath} does not exist on system.")
             sys.path.insert(0, modulepath)
