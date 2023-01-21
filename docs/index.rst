@@ -1,8 +1,8 @@
-:mod:`Ska.DBI`
+:mod:`ska_dbi`
 ===============================================================================================================================================
 
 
-.. automodule:: Ska.DBI.DBI
+.. automodule:: ska_dbi.DBI
 
 
 Functions
@@ -21,7 +21,7 @@ Classes
    :members:
    :inherited-members:
    :undoc-members:
-   
+
 
 
 

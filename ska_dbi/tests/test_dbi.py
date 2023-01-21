@@ -10,7 +10,7 @@ import pytest
 import numpy as np
 import tempfile
 
-from Ska.DBI import DBI
+from ska_dbi import DBI
 
 
 # If the SYBASE_OCS environment variable is set (from flt_envs) and the module exists

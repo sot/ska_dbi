@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
-Ska.DBI provides simple methods for database access and data insertion.
+ska_dbi provides simple methods for database access and data insertion.
 Features:
 
 - Sqlite and sybase connections are supported.
@@ -188,7 +188,7 @@ class DBI(object):
 
     def fetchone(self, expr, vals=None,):
         """Fetch one row after executing args.  This always gets the first row of the
-        SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.
+        SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.
 
         Example usage::
 
