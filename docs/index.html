@@ -4,16 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ska.DBI &#8212; Ska.DBI 4.1.0 documentation</title>
-    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>ska_dbi &#8212; ska_dbi 5.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -22,7 +22,7 @@
 
   </head><body>
 <div class="topbar">
-  <a class="brand" title="Documentation Home" href="#"><span id="logotext1">Ska! </span><span id="logotext2">Ska</span><span id="logotext3">.DBI</span></a>
+  <a class="brand" title="Documentation Home" href="#"><span id="logotext1">Ska! </span><span id="logotext2">ska_dbi</span><span id="logotext3"></span></a>
   <ul>
     
     <li><a class="home" title="Homepage" href="https://cxc.cfa.harvard.edu/mta/ASPECT/tool_doc">
@@ -47,7 +47,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">Ska.DBI 4.1.0 documentation</a>
+	<a href="#">ska_dbi 5.0.0 documentation</a>
 	 &#187;
       </li>
       
@@ -61,9 +61,9 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-Ska.DBI.DBI">
-<span id="ska-dbi"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.DBI</span></code><a class="headerlink" href="#module-Ska.DBI.DBI" title="Permalink to this headline">¶</a></h1>
-<p>Ska.DBI provides simple methods for database access and data insertion.
+  <section id="module-ska_dbi.DBI">
+<span id="ska-dbi"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_dbi</span></code><a class="headerlink" href="#module-ska_dbi.DBI" title="Permalink to this headline">¶</a></h1>
+<p>ska_dbi provides simple methods for database access and data insertion.
 Features:</p>
 <ul class="simple">
 <li><p>Sqlite and sybase connections are supported.</p></li>
@@ -72,21 +72,21 @@ Features:</p>
 <li><p>Verbose mode to show transaction information.</p></li>
 <li><p>Insert method smooths over syntax differences between sqlite and sybase.</p></li>
 </ul>
-<div class="section" id="functions">
+<section id="functions">
 <h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
 <dl class="py function">
-<dt id="Ska.DBI.DBI._denumpy">
-<code class="sig-prename descclassname">Ska.DBI.DBI.</code><code class="sig-name descname">_denumpy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#_denumpy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI._denumpy" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI._denumpy">
+<span class="sig-prename descclassname"><span class="pre">ska_dbi.DBI.</span></span><span class="sig-name descname"><span class="pre">_denumpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#_denumpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI._denumpy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Try using the numpy.tolist() to convert to native python type.
 DBI’s can’t typically handle numpy vals.</p>
 </dd></dl>
 
-</div>
-<div class="section" id="classes">
+</section>
+<section id="classes">
 <h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="Ska.DBI.DBI.DBI">
-<em class="property">class </em><code class="sig-prename descclassname">Ska.DBI.DBI.</code><code class="sig-name descname">DBI</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dbi</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">server</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">user</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">passwd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">database</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">numpy</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">autocommit</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">authdir</span><span class="o">=</span><span class="default_value">'/proj/sot/ska/data/aspect_authorization'</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_dbi.DBI.</span></span><span class="sig-name descname"><span class="pre">DBI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocommit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/proj/sot/ska/data/aspect_authorization'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Database interface class.</p>
 <p>Example usage:</p>
@@ -114,14 +114,14 @@ DBI’s can’t typically handle numpy vals.</p>
 </dd>
 </dl>
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.commit">
-<code class="sig-name descname">commit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.commit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.commit" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.commit">
+<span class="sig-name descname"><span class="pre">commit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.commit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.commit" title="Permalink to this definition">¶</a></dt>
 <dd><p>Commit transactions</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.execute">
-<code class="sig-name descname">execute</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em>, <em class="sig-param"><span class="n">vals</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">commit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.execute"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.execute" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.execute">
+<span class="sig-name descname"><span class="pre">execute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.execute" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run <code class="docutils literal notranslate"><span class="pre">self.cursor.execute(expr,</span> <span class="pre">vals)</span></code> with possibility of verbose output and commit.</p>
 <p>Multiple commands can by executed by separating them with a semicolon at
 the end of a line.  If <code class="docutils literal notranslate"><span class="pre">vals</span></code> are supplied they will be applied to
@@ -141,8 +141,8 @@ each of the commands.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.fetch">
-<code class="sig-name descname">fetch</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em>, <em class="sig-param"><span class="n">vals</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.fetch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.fetch" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.fetch">
+<span class="sig-name descname"><span class="pre">fetch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.fetch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.fetch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a generator that will fetch one row at a time after executing with args.</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">db</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
@@ -163,8 +163,8 @@ each of the commands.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.fetchall">
-<code class="sig-name descname">fetchall</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em>, <em class="sig-param"><span class="n">vals</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.fetchall"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.fetchall" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.fetchall">
+<span class="sig-name descname"><span class="pre">fetchall</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.fetchall"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.fetchall" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch all rows after executing args.</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchall</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
@@ -185,10 +185,10 @@ each of the commands.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.fetchone">
-<code class="sig-name descname">fetchone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">expr</span></em>, <em class="sig-param"><span class="n">vals</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.fetchone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.fetchone" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.fetchone">
+<span class="sig-name descname"><span class="pre">fetchone</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">expr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.fetchone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.fetchone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch one row after executing args.  This always gets the first row of the
-SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</p>
+SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span>
 <span class="nb">print</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;column&#39;</span><span class="p">]</span>
@@ -208,8 +208,8 @@ SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="Ska.DBI.DBI.DBI.insert">
-<code class="sig-name descname">insert</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">row</span></em>, <em class="sig-param"><span class="n">tablename</span></em>, <em class="sig-param"><span class="n">replace</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">commit</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Ska/DBI/DBI.html#DBI.insert"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Ska.DBI.DBI.DBI.insert" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="ska_dbi.DBI.DBI.insert">
+<span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert data row into table tablename.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -228,8 +228,8 @@ SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</p>
 
 </dd></dl>
 
-</div>
-</div>
+</section>
+</section>
 
 
             <div class="clearer"></div>
@@ -239,7 +239,7 @@ SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</p>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
-<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">Ska.DBI</span></code></a><ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_dbi</span></code></a><ul>
 <li><a class="reference internal" href="#functions">Functions</a></li>
 <li><a class="reference internal" href="#classes">Classes</a></li>
 </ul>
@@ -270,7 +270,7 @@ SQL query.  Use Ska.DBI.fetch() to get multiple rows one at a time.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
   </p>
 </footer>
   </body>
