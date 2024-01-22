@@ -19,7 +19,7 @@ HAS_SYBASE = ('SYBASE_OCS' in os.environ and
               os.path.exists(
                 os.path.join(os.environ['SYBASE'],
                              os.environ['SYBASE_OCS'],
-                             'python', 'python34_64r', 'lib', 'sybpydb.so')))
+                             'python', 'python39_64r', 'lib', 'sybpydb.so')))
 
 
 with open(os.path.join(os.path.dirname(__file__), 'ska_dbi_test_table.sql')) as fh:
