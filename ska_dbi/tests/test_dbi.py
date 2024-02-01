@@ -6,6 +6,7 @@ Usage:
 """
 
 import os
+import sys
 import pytest
 import numpy as np
 import tempfile
@@ -13,9 +14,13 @@ import tempfile
 from ska_dbi import DBI
 
 
-# If the SYBASE_OCS environment variable is set (from flt_envs) and the module exists
+# If Python version >= 3.7 and less than 3.11
+# and the SYBASE_OCS environment variable is set (from flt_envs) and the module exists
 # on the system, do the Sybase tests.
-HAS_SYBASE = ('SYBASE_OCS' in os.environ and
+HAS_SYBASE = (
+    sys.version_info.major == 3 and
+    (sys.version_info.minor < 11 and sys.version_info.minor >= 7) and
+    'SYBASE_OCS' in os.environ and
               os.path.exists(
                 os.path.join(os.environ['SYBASE'],
                              os.environ['SYBASE_OCS'],

@@ -11,9 +11,12 @@ Features:
 """
 import os
 import sys
+from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
-supported_dbis = ('sqlite', 'sybase')
-
+if sys.version_info.major == 3 and sys.version_info.minor < 11:
+    SUPPORTED_DBIS = ('sqlite', 'sybase')
+else:
+    SUPPORTED_DBIS = ('sqlite')
 
 def _denumpy(x):
     """
@@ -25,14 +28,6 @@ def _denumpy(x):
         return x
 
 
-class NoPasswordError(Exception):
-    """
-    Special Error for the case when password is neither supplied nor available
-    from a file.
-    """
-    pass
-
-
 class DBI(object):
     """
     Database interface class.
@@ -40,7 +35,7 @@ class DBI(object):
     Example usage::
 
       db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca')
+      db = DBI(dbi='sybase', server='sqlsao', user='aca_ops', database='axafapstat')
       db = DBI(dbi='sybase')   # Use defaults (same as above)
 
     :param dbi:  Database interface name (sqlite, sybase)
@@ -60,20 +55,16 @@ class DBI(object):
                  authdir='/proj/sot/ska/data/aspect_authorization',
                  **kwargs):
 
-        DEFAULTS = {'sqlite': {'server': 'db.sql3'},
-                    'sybase': {'server': 'sybase',
-                               'user': 'aca_ops',
-                               'database': 'aca'}}
 
-        if dbi not in supported_dbis:
-            raise ValueError('dbi = %s not supported - allowed = %s' % (dbi, supported_dbis))
+        if dbi not in SUPPORTED_DBIS:
+            raise ValueError(f'dbi = {dbi} not supported - allowed = {SUPPORTED_DBIS}')
 
         self.dbi = dbi
-        self.server = server or DEFAULTS[dbi].get('server')
-        self.user = user or DEFAULTS[dbi].get('user')
+        self.server = server or DEFAULT_CONFIG[dbi].get('server')
+        self.user = user or DEFAULT_CONFIG[dbi].get('user')
         self.database = (database
                          or os.environ.get('SKA_DATABASE')
-                         or DEFAULTS[dbi].get('database'))
+                         or DEFAULT_CONFIG[dbi].get('database'))
         self.passwd = passwd
         self.numpy = numpy
         self.autocommit = autocommit
