@@ -2,7 +2,6 @@
 import ska_helpers
 
 from .DBI import *
-from .sqsh import Sqsh
 
 __version__ = ska_helpers.get_version('ska_dbi')
 

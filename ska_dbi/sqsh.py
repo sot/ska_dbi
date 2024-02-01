@@ -140,9 +140,6 @@ class Sqsh(object):
             The table containing the fetched rows, or None if no rows are returned.
         """
         outlines = self.fetch(query)
-        # Sqsh should always be returning a header line -- return None if that's it.
-        if len(outlines) <= 1:
-            return None
         tab = Table.read(outlines, format="ascii.csv")
         return tab
 
