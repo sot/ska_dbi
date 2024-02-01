@@ -17,13 +17,11 @@ class Sqsh(object):
 
     Example usage::
 
-      db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca')
-      db = DBI(dbi='sybase')   # Use defaults (same as above)
+      db = Sqsh(dbi='sybase', server='sybase', user='aca_ops', database='aca')
+      db = Sqsh(dbi='sybase')   # Use defaults (same as above)
 
     :param server: Server name (default = sqlsao)
     :param user: User name (default = aca_ops)
-    :param passwd: Password (optional).  Read from aspect authorization dir if required and not supplied.
     :param database: Database name (default = axafapstat)
     :param sqshrc: sqshrc file (optional).  Read from aspect authorization dir if required and not supplied.
     :param authdir: Directory containing authorization files
@@ -34,7 +32,6 @@ class Sqsh(object):
         self,
         server=None,
         user=None,
-        passwd=None,
         database=None,
         sqshrc=None,
         authdir="/proj/sot/ska/data/aspect_authorization",
@@ -44,7 +41,6 @@ class Sqsh(object):
         self.server = server or DEFAULT_CONFIG['sybase'].get("server")
         self.user = user or DEFAULT_CONFIG['sybase'].get("user")
         self.database = database or DEFAULT_CONFIG['sybase'].get("database")
-        self.passwd = passwd
         self.sqshrc = sqshrc
 
         if not Path(SYBASE).exists():
@@ -52,7 +48,7 @@ class Sqsh(object):
         if not Path(SQSH_BIN).exists():
             raise RuntimeError(f"sqsh.bin does not exist: {SQSH_BIN}")
 
-        if self.passwd is None and self.sqshrc is None:
+        if self.sqshrc is None:
             sqshrc_file = (
                 Path(authdir) / f"sqsh-{self.server}-{self.database}-{self.user}"
             )
@@ -60,7 +56,7 @@ class Sqsh(object):
                 self.sqshrc = sqshrc_file
             else:
                 raise NoPasswordError(
-                    f"None supplied and unable to read inferred sqshrc file {sqshrc_file}"
+                    f"Unable to read inferred sqshrc file {sqshrc_file}"
                 )
 
     def __enter__(self):
@@ -108,8 +104,6 @@ class Sqsh(object):
             "-C",
             query,
         ]
-        if self.passwd is not None:
-            cmd += ["-P", self.passwd]
         cmd = ["env"] + envs + cmd
 
         proc = subprocess.Popen(
