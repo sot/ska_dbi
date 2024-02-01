@@ -16,15 +16,10 @@ def test_fetchall_axafapstat():
     assert dat["obsid"][0] == 5438
     assert dat[dat["revision"] == 1]['ascdsver'] == '7.6.3'
 
+
 def test_fetchone_axafapstat():
     s = Sqsh()
     query = "select * from aspect_1 where obsid=5438 and revision=1"
     dat = s.fetchone(query)
     assert dat["obsid"] == 5438
     assert dat['ascdsver'] == '7.6.3'
-
-
-
-
-
-
