@@ -102,15 +102,9 @@ class Sqsh(object):
             query,
         ]
 
-        proc = subprocess.Popen(
-            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=cmd_env,
+        stdout = subprocess.check_output(
+            cmd, env=cmd_env,
         )
-        stdout, stderr = proc.communicate()
-        if proc.returncode != 0:
-            raise RuntimeError(
-                "sqsh failed with return code %d: %s" % (proc.returncode, stderr)
-            )
-
         outlines = stdout.decode().splitlines()
         return outlines
 
