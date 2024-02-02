@@ -64,8 +64,6 @@ class Sqsh(object):
         """
         Context manager exit run time context.
         """
-        pass
-
 
     def fetch(self, query):
         """
