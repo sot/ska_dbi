@@ -4,10 +4,7 @@ from astropy.table import Table
 from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
 SYBASE = "/soft/SYBASE16.0"
-ENV_VARS = [
-    f"SYBASE={SYBASE}",
-    "LD_LIBRARY_PATH=/soft/SYBASE16.0/OCS-16_0/lib:/soft/SYBASE16.0/OCS-16_0/lib3p64:/soft/SYBASE16.0/OCS-16_0/lib3p",
-]
+LD_LIBRARY_PATH = "/soft/SYBASE16.0/OCS-16_0/lib:/soft/SYBASE16.0/OCS-16_0/lib3p64:/soft/SYBASE16.0/OCS-16_0/lib3p"
 SQSH_BIN = "/usr/local/bin/sqsh.bin"
 
 
@@ -87,9 +84,11 @@ class Sqsh(object):
         -------
         list of str
         """
-        envs = ENV_VARS
+        cmd_env = {"SYBASE": SYBASE,
+                   "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
         if self.sqshrc is not None:
-            envs = envs + [f"SQSHRC={self.sqshrc}"]
+            cmd_env['SQSHRC'] = self.sqshrc
+
         cmd = [
             SQSH_BIN,
             "-X",
@@ -104,10 +103,9 @@ class Sqsh(object):
             "-C",
             query,
         ]
-        cmd = ["env"] + envs + cmd
 
         proc = subprocess.Popen(
-            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=cmd_env,
         )
         stdout, stderr = proc.communicate()
         if proc.returncode != 0:
