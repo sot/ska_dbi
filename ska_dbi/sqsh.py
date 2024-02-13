@@ -108,7 +108,6 @@ class Sqsh(object):
         outlines = stdout.decode().splitlines()
         return outlines
 
-
     def fetchall(self, query):
         """
         Fetches all the rows returned by the query.
@@ -127,7 +126,6 @@ class Sqsh(object):
         outlines = self.fetch(query)
         tab = Table.read(outlines, format="ascii.csv")
         return tab
-
 
     def fetchone(self, query):
         """
