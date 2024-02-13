@@ -6,20 +6,12 @@ Usage:
 """
 
 import os
+import sys
 import pytest
 import numpy as np
 import tempfile
 
 from ska_dbi import DBI
-
-
-# If the SYBASE_OCS environment variable is set (from flt_envs) and the module exists
-# on the system, do the Sybase tests.
-HAS_SYBASE = ('SYBASE_OCS' in os.environ and
-              os.path.exists(
-                os.path.join(os.environ['SYBASE'],
-                             os.environ['SYBASE_OCS'],
-                             'python', 'python34_64r', 'lib', 'sybpydb.so')))
 
 
 with open(os.path.join(os.path.dirname(__file__), 'ska_dbi_test_table.sql')) as fh:
@@ -102,18 +94,6 @@ class TestSqliteWithNumpy(DBI_BaseTests):
 
 class TestSqliteWithoutNumpy(DBI_BaseTests):
     db_config = dict(dbi='sqlite', numpy=False)
-
-
-@pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
-class TestSybaseWithNumpy(DBI_BaseTests):
-    db_config = dict(dbi='sybase', server='sybase', user='aca_test',
-                     database='aca_tstdb', numpy=True)
-
-
-@pytest.mark.skipif('not HAS_SYBASE', reason='No SYBASE_OCS and/or sybpydb.so')
-class TestSybaseWithoutNumpy(DBI_BaseTests):
-    db_config = dict(dbi='sybase', server='sybase', user='aca_test',
-                     database='aca_tstdb', numpy=False)
 
 
 def test_context_manager():

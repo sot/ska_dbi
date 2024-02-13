@@ -3,16 +3,14 @@
 ska_dbi provides simple methods for database access and data insertion.
 Features:
 
-- Sqlite and sybase connections are supported.
-- Automatic fetching of Ska database account passwords.
+- Sqlite connections are supported.
 - Integration with numpy record arrays.
 - Verbose mode to show transaction information.
-- Insert method smooths over syntax differences between sqlite and sybase.
 """
 import os
 import sys
-
-supported_dbis = ('sqlite', 'sybase')
+import sqlite3 as dbapi2
+from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
 
 def _denumpy(x):
@@ -25,14 +23,6 @@ def _denumpy(x):
         return x
 
 
-class NoPasswordError(Exception):
-    """
-    Special Error for the case when password is neither supplied nor available
-    from a file.
-    """
-    pass
-
-
 class DBI(object):
     """
     Database interface class.
@@ -40,14 +30,10 @@ class DBI(object):
     Example usage::
 
       db = DBI(dbi='sqlite', server=dbfile, numpy=False, verbose=True)
-      db = DBI(dbi='sybase', server='sybase', user='aca_ops', database='aca')
-      db = DBI(dbi='sybase')   # Use defaults (same as above)
 
-    :param dbi:  Database interface name (sqlite, sybase)
+    :param dbi:  Database interface name (sqlite)
     :param server: Server name (or file name for sqlite)
     :param user: User name (optional)
-    :param passwd: Password (optional).  Read from aspect authorization if required and not supplied.
-    :param database: Database name for sybase (default = SKA_DATABASE env. or package default 'aca').
     :param autocommit: Automatically commit after each transaction.  Slower but easier to code.
     :param numpy:  Return multirow results as numpy.recarray; input vals can be numpy types
     :param verbose: Print transaction info
@@ -55,26 +41,16 @@ class DBI(object):
 
     :rtype: DBI object
     """
-    def __init__(self, dbi=None, server=None, user=None, passwd=None, database=None,
+    def __init__(self, dbi=None, server=None,
                  numpy=True, autocommit=True, verbose=False,
-                 authdir='/proj/sot/ska/data/aspect_authorization',
                  **kwargs):
 
-        DEFAULTS = {'sqlite': {'server': 'db.sql3'},
-                    'sybase': {'server': 'sybase',
-                               'user': 'aca_ops',
-                               'database': 'aca'}}
 
-        if dbi not in supported_dbis:
-            raise ValueError('dbi = %s not supported - allowed = %s' % (dbi, supported_dbis))
+        if dbi != 'sqlite':
+            raise ValueError(f'ska_dbi.DBI only supports sqlite at this time.  Got {dbi}.')
 
         self.dbi = dbi
-        self.server = server or DEFAULTS[dbi].get('server')
-        self.user = user or DEFAULTS[dbi].get('user')
-        self.database = (database
-                         or os.environ.get('SKA_DATABASE')
-                         or DEFAULTS[dbi].get('database'))
-        self.passwd = passwd
+        self.server = server or DEFAULT_CONFIG[dbi].get('server')
         self.numpy = numpy
         self.autocommit = autocommit
         self.verbose = verbose
@@ -82,30 +58,7 @@ class DBI(object):
         if self.verbose:
             print('Connecting to', self.dbi, 'server', self.server)
 
-        if dbi == 'sqlite':
-            import sqlite3 as dbapi2
-            self.conn = dbapi2.connect(self.server)
-
-        elif dbi == 'sybase':
-            if 'SYBASE_OCS' not in os.environ:
-                raise ValueError(
-                    'SYBASE_OCS env variable not defined. sybase dbi works only in production ska.')
-            modulepath = os.path.join(os.environ['SYBASE'], os.environ['SYBASE_OCS'],
-                                      'python', 'python39_64r', 'lib')
-            if not os.path.exists(modulepath):
-                raise ValueError(f"{modulepath} does not exist on system.")
-            sys.path.insert(0, modulepath)
-            import sybpydb as dbapi2
-            if self.passwd is None:
-                try:
-                    passwd_file = os.path.join(authdir, '%s-%s-%s' % (self.server, self.database, self.user))
-                    self.passwd = open(passwd_file).read().strip()
-                    if self.verbose:
-                        print('Using password from', passwd_file)
-                except IOError as e:
-                    raise NoPasswordError("None supplied and unable to read password file %s" % e)
-            self.conn = dbapi2.connect(servername=self.server, user=self.user, password=self.passwd)
-
+        self.conn = dbapi2.connect(self.server)
         self.Error = dbapi2.Error
 
     def __enter__(self):
@@ -141,11 +94,6 @@ class DBI(object):
         """
         # Get a new cursor (implicitly closing any previous cursor)
         self.cursor = self.conn.cursor()
-
-        # Sybase dbi does not handle database via the connection.
-        # Must be requested via the cursor.
-        if self.dbi == 'sybase':
-            self.cursor.execute(f'use {self.database}')
 
         for subexpr in expr.split(';\n'):
             if vals is not None:
@@ -263,8 +211,6 @@ class DBI(object):
         # Create the insert command depending on dbi.  Start with the column
         # value replacement strings
         colrepls = ('?',) * len(cols)
-        if self.dbi == 'sybase' and replace:
-            raise ValueError('Using replace=True not allowed for Sybase DBI')
 
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
         replace_str = replace and 'OR REPLACE' or ''
