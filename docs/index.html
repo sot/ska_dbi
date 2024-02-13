@@ -1,19 +1,18 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
-    <title>ska_dbi &#8212; ska_dbi 5.0.0 documentation</title>
+    <title>ska_dbi &#8212; ska_dbi 5.1.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
     
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +46,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">ska_dbi 5.0.0 documentation</a>
+	<a href="#">ska_dbi 5.1.0 documentation</a>
 	 &#187;
       </li>
       
@@ -62,18 +61,16 @@
           <div class="body" role="main">
             
   <section id="module-ska_dbi.DBI">
-<span id="ska-dbi"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_dbi</span></code><a class="headerlink" href="#module-ska_dbi.DBI" title="Permalink to this headline">¶</a></h1>
+<span id="ska-dbi"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_dbi</span></code><a class="headerlink" href="#module-ska_dbi.DBI" title="Permalink to this heading">¶</a></h1>
 <p>ska_dbi provides simple methods for database access and data insertion.
 Features:</p>
 <ul class="simple">
-<li><p>Sqlite and sybase connections are supported.</p></li>
-<li><p>Automatic fetching of Ska database account passwords.</p></li>
+<li><p>Sqlite connections are supported.</p></li>
 <li><p>Integration with numpy record arrays.</p></li>
 <li><p>Verbose mode to show transaction information.</p></li>
-<li><p>Insert method smooths over syntax differences between sqlite and sybase.</p></li>
 </ul>
 <section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="ska_dbi.DBI._denumpy">
 <span class="sig-prename descclassname"><span class="pre">ska_dbi.DBI.</span></span><span class="sig-name descname"><span class="pre">_denumpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#_denumpy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI._denumpy" title="Permalink to this definition">¶</a></dt>
@@ -83,33 +80,29 @@ DBI’s can’t typically handle numpy vals.</p>
 
 </section>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="ska_dbi.DBI.DBI">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">ska_dbi.DBI.</span></span><span class="sig-name descname"><span class="pre">DBI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">database</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocommit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/proj/sot/ska/data/aspect_authorization'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ska_dbi.DBI.</span></span><span class="sig-name descname"><span class="pre">DBI</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dbi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">numpy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocommit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Database interface class.</p>
 <p>Example usage:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">db</span> <span class="o">=</span> <span class="n">DBI</span><span class="p">(</span><span class="n">dbi</span><span class="o">=</span><span class="s1">&#39;sqlite&#39;</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="n">dbfile</span><span class="p">,</span> <span class="n">numpy</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">DBI</span><span class="p">(</span><span class="n">dbi</span><span class="o">=</span><span class="s1">&#39;sybase&#39;</span><span class="p">,</span> <span class="n">server</span><span class="o">=</span><span class="s1">&#39;sybase&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="s1">&#39;aca_ops&#39;</span><span class="p">,</span> <span class="n">database</span><span class="o">=</span><span class="s1">&#39;aca&#39;</span><span class="p">)</span>
-<span class="n">db</span> <span class="o">=</span> <span class="n">DBI</span><span class="p">(</span><span class="n">dbi</span><span class="o">=</span><span class="s1">&#39;sybase&#39;</span><span class="p">)</span>   <span class="c1"># Use defaults (same as above)</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>dbi</strong> – Database interface name (sqlite, sybase)</p></li>
+<li><p><strong>dbi</strong> – Database interface name (sqlite)</p></li>
 <li><p><strong>server</strong> – Server name (or file name for sqlite)</p></li>
 <li><p><strong>user</strong> – User name (optional)</p></li>
-<li><p><strong>passwd</strong> – Password (optional).  Read from aspect authorization if required and not supplied.</p></li>
-<li><p><strong>database</strong> – Database name for sybase (default = SKA_DATABASE env. or package default ‘aca’).</p></li>
 <li><p><strong>autocommit</strong> – Automatically commit after each transaction.  Slower but easier to code.</p></li>
 <li><p><strong>numpy</strong> – Return multirow results as numpy.recarray; input vals can be numpy types</p></li>
 <li><p><strong>verbose</strong> – Print transaction info</p></li>
 <li><p><strong>authdir</strong> – Directory containing authorization files</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>DBI object</p>
 </dd>
 </dl>
@@ -127,14 +120,14 @@ DBI’s can’t typically handle numpy vals.</p>
 the end of a line.  If <code class="docutils literal notranslate"><span class="pre">vals</span></code> are supplied they will be applied to
 each of the commands.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>expr</strong> – SQL expression to execute</p></li>
 <li><p><strong>vals</strong> – Values associated with the expression (optional)</p></li>
 <li><p><strong>commit</strong> – Commit after executing C{expr} (default = self.autocommit)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
@@ -150,13 +143,13 @@ each of the commands.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>expr</strong> – SQL expression to execute</p></li>
 <li><p><strong>vals</strong> – Values associated with the expression (optional)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>Generator that will get one row of database as dict() via next()</p>
 </dd>
 </dl>
@@ -172,13 +165,13 @@ each of the commands.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>expr</strong> – SQL expression to execute</p></li>
 <li><p><strong>vals</strong> – Values associated with the expression (optional)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>All rows of database as numpy.rec.recarray or list of dicts, depending on self.numpy</p>
 </dd>
 </dl>
@@ -195,13 +188,13 @@ SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
 </pre></div>
 </div>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>expr</strong> – SQL expression to execute</p></li>
 <li><p><strong>vals</strong> – Values associated with the expression (optional)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>One row of database as dict()</p>
 </dd>
 </dl>
@@ -212,7 +205,7 @@ SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
 <span class="sig-name descname"><span class="pre">insert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">commit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ska_dbi/DBI.html#DBI.insert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ska_dbi.DBI.DBI.insert" title="Permalink to this definition">¶</a></dt>
 <dd><p>Insert data row into table tablename.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>row</strong> – Data row for insertion (dict or numpy.record)</p></li>
 <li><p><strong>tablename</strong> – Table name</p></li>
@@ -220,7 +213,7 @@ SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
 <li><p><strong>commit</strong> – Commit insertion (default = self.autocommit)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type</dt>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>None</p>
 </dd>
 </dl>
@@ -240,8 +233,22 @@ SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">ska_dbi</span></code></a><ul>
-<li><a class="reference internal" href="#functions">Functions</a></li>
-<li><a class="reference internal" href="#classes">Classes</a></li>
+<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#ska_dbi.DBI._denumpy"><code class="docutils literal notranslate"><span class="pre">_denumpy()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI"><code class="docutils literal notranslate"><span class="pre">DBI</span></code></a><ul>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.commit"><code class="docutils literal notranslate"><span class="pre">DBI.commit()</span></code></a></li>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.execute"><code class="docutils literal notranslate"><span class="pre">DBI.execute()</span></code></a></li>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.fetch"><code class="docutils literal notranslate"><span class="pre">DBI.fetch()</span></code></a></li>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.fetchall"><code class="docutils literal notranslate"><span class="pre">DBI.fetchall()</span></code></a></li>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.fetchone"><code class="docutils literal notranslate"><span class="pre">DBI.fetchone()</span></code></a></li>
+<li><a class="reference internal" href="#ska_dbi.DBI.DBI.insert"><code class="docutils literal notranslate"><span class="pre">DBI.insert()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -270,7 +277,7 @@ SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 6.1.3. &nbsp;
   </p>
 </footer>
   </body>
