@@ -120,8 +120,9 @@ class Sqsh(object):
 
         Returns
         -------
-        astropy.table.Table or None
-            The table containing the fetched rows, or None if no rows are returned.
+        astropy.table.Table
+            The table containing the fetched rows. If there are no rows that match the query,
+            a zero-length table is returned.
         """
         outlines = self.fetch(query)
         tab = Table.read(outlines, format="ascii.csv")
