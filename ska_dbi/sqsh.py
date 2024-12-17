@@ -1,6 +1,8 @@
 import subprocess
 from pathlib import Path
+
 from astropy.table import Table
+
 from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
 SYBASE = "/soft/SYBASE16.0"

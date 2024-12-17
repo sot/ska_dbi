@@ -8,10 +8,9 @@ Features:
 - Verbose mode to show transaction information.
 """
 
-import os
-import sys
 import sqlite3 as dbapi2
-from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
+
+from ska_dbi.common import DEFAULT_CONFIG
 
 
 def _denumpy(x):
@@ -139,7 +138,7 @@ class DBI(object):
         while True:
             vals = self.cursor.fetchone()
             if vals:
-                yield dict(zip(cols, vals))
+                yield dict(zip(cols, vals, strict=False))
             else:
                 if self.autocommit:
                     self.commit()
@@ -200,7 +199,7 @@ class DBI(object):
             # having numpy auto-determine types
             return numpy.rec.fromrecords(vals, names=cols)
         else:
-            return [dict(zip(cols, x)) for x in vals]
+            return [dict(zip(cols, x, strict=False)) for x in vals]
 
     def insert(self, row, tablename, replace=False, commit=None):
         """Insert data row into table tablename.

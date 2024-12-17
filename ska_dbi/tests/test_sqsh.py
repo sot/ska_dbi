@@ -1,8 +1,8 @@
 import pytest
 from testr.test_helper import on_head_network
-from ska_dbi.sqsh import Sqsh
-from ska_dbi.common import NoPasswordError
 
+from ska_dbi.common import NoPasswordError
+from ska_dbi.sqsh import Sqsh
 
 ON_HEAD_NETWORK = on_head_network()
 

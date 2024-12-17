@@ -6,13 +6,12 @@ Usage:
 """
 
 import os
-import sys
-import pytest
-import numpy as np
 import tempfile
 
-from ska_dbi import DBI
+import numpy as np
+import pytest
 
+from ska_dbi import DBI
 
 with open(os.path.join(os.path.dirname(__file__), "ska_dbi_test_table.sql")) as fh:
     TEST_TABLE_SQL = fh.read().strip()

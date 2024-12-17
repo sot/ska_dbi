@@ -10,4 +10,3 @@ class NoPasswordError(Exception):
     from a file.
     """
 
-    pass
