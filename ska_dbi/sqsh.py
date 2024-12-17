@@ -25,6 +25,7 @@ class Sqsh(object):
 
     :rtype: Sqsh object
     """
+
     def __init__(
         self,
         server=None,
@@ -34,7 +35,6 @@ class Sqsh(object):
         authdir="/proj/sot/ska/data/aspect_authorization",
         **kwargs,
     ):
-
         self.server = server or DEFAULT_CONFIG['sybase'].get("server")
         self.user = user or DEFAULT_CONFIG['sybase'].get("user")
         self.database = database or DEFAULT_CONFIG['sybase'].get("database")
@@ -82,8 +82,7 @@ class Sqsh(object):
         -------
         list of str
         """
-        cmd_env = {"SYBASE": SYBASE,
-                   "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
+        cmd_env = {"SYBASE": SYBASE, "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
         if self.sqshrc is not None:
             cmd_env['SQSHRC'] = self.sqshrc
 
@@ -103,7 +102,8 @@ class Sqsh(object):
         ]
 
         stdout = subprocess.check_output(
-            cmd, env=cmd_env,
+            cmd,
+            env=cmd_env,
         )
         outlines = stdout.decode().splitlines()
         return outlines

@@ -35,7 +35,6 @@ class DBI_BaseTests(object):
         cls.db.cursor.close()
         cls.db.conn.close()
 
-
     def test_05_force_drop_table(self):
         try:
             self.db.execute('drop table ska_dbi_test_table')
@@ -48,8 +47,15 @@ class DBI_BaseTests(object):
 
     def test_15_insert_data(self):
         for id_ in range(3):
-            data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
-                        pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
+            data = dict(
+                id=id_,
+                tstart=2.0 + id_,
+                tstop=3.0 + id_,
+                obsid=4 + id_,
+                pcad_mode='npnt',
+                aspect_mode='kalm',
+                sim_mode='stop',
+            )
             self.db.insert(data, 'ska_dbi_test_table')
 
     def test_20_fetchall(self):
@@ -70,7 +76,7 @@ class DBI_BaseTests(object):
 
     def test_35_fetch(self):
         for i, row in enumerate(self.db.fetch('select * from ska_dbi_test_table')):
-            assert np.allclose(row['tstart'], 2. + i)
+            assert np.allclose(row['tstart'], 2.0 + i)
 
     def test_40_fetch_null(self):
         for row in self.db.fetch('select * from ska_dbi_test_table where id=100000'):
@@ -100,8 +106,15 @@ def test_context_manager():
     with DBI(dbi='sqlite', server=':memory:') as db:
         db.execute(TEST_TABLE_SQL)
         for id_ in range(3):
-            data = dict(id=id_, tstart=2. + id_, tstop=3. + id_, obsid=4 + id_,
-                        pcad_mode='npnt', aspect_mode='kalm', sim_mode='stop')
+            data = dict(
+                id=id_,
+                tstart=2.0 + id_,
+                tstop=3.0 + id_,
+                obsid=4 + id_,
+                pcad_mode='npnt',
+                aspect_mode='kalm',
+                sim_mode='stop',
+            )
             db.insert(data, 'ska_dbi_test_table')
         rows = db.fetchall('select * from ska_dbi_test_table')
         assert len(rows) == 3

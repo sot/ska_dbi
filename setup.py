@@ -14,16 +14,17 @@ duplicate_package_info(packages, name, namespace)
 duplicate_package_info(package_dir, name, namespace)
 duplicate_package_info(package_data, name, namespace)
 
-setup(name=name,
-      author='Tom Aldcroft',
-      description='Database interface utilities',
-      author_email='taldcroft@cfa.harvard.edu',
-      use_scm_version=True,
-      setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
-      zip_safe=False,
-      package_dir=package_dir,
-      packages=packages,
-      package_data=package_data,
-      tests_require=['pytest'],
-      cmdclass=cmdclass,
-      )
+setup(
+    name=name,
+    author='Tom Aldcroft',
+    description='Database interface utilities',
+    author_email='taldcroft@cfa.harvard.edu',
+    use_scm_version=True,
+    setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
+    zip_safe=False,
+    package_dir=package_dir,
+    packages=packages,
+    package_data=package_data,
+    tests_require=['pytest'],
+    cmdclass=cmdclass,
+)

@@ -7,6 +7,7 @@ Features:
 - Integration with numpy record arrays.
 - Verbose mode to show transaction information.
 """
+
 import os
 import sys
 import sqlite3 as dbapi2
@@ -41,13 +42,20 @@ class DBI(object):
 
     :rtype: DBI object
     """
-    def __init__(self, dbi=None, server=None,
-                 numpy=True, autocommit=True, verbose=False,
-                 **kwargs):
 
-
+    def __init__(
+        self,
+        dbi=None,
+        server=None,
+        numpy=True,
+        autocommit=True,
+        verbose=False,
+        **kwargs,
+    ):
         if dbi != 'sqlite':
-            raise ValueError(f'ska_dbi.DBI only supports sqlite at this time.  Got {dbi}.')
+            raise ValueError(
+                f'ska_dbi.DBI only supports sqlite at this time.  Got {dbi}.'
+            )
 
         self.dbi = dbi
         self.server = server or DEFAULT_CONFIG[dbi].get('server')
@@ -108,7 +116,11 @@ class DBI(object):
         if (commit is None and self.autocommit) or commit:
             self.commit()
 
-    def fetch(self, expr, vals=None,):
+    def fetch(
+        self,
+        expr,
+        vals=None,
+    ):
         """
         Return a generator that will fetch one row at a time after executing with args.
 
@@ -134,7 +146,11 @@ class DBI(object):
                 self.cursor.close()
                 break
 
-    def fetchone(self, expr, vals=None,):
+    def fetchone(
+        self,
+        expr,
+        vals=None,
+    ):
         """Fetch one row after executing args.  This always gets the first row of the
         SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.
 
@@ -179,6 +195,7 @@ class DBI(object):
 
         if self.numpy and vals:
             import numpy
+
             # Would be good to set dtype explicitly from database info instead of
             # having numpy auto-determine types
             return numpy.rec.fromrecords(vals, names=cols)
@@ -214,9 +231,7 @@ class DBI(object):
 
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
         replace_str = replace and 'OR REPLACE' or ''
-        cmd = insert_str % (replace_str, tablename,
-                            ','.join(cols),
-                            ','.join(colrepls))
+        cmd = insert_str % (replace_str, tablename, ','.join(cols), ','.join(colrepls))
 
         # Finally run the insert command
         self.execute(cmd, vals, commit=commit)
