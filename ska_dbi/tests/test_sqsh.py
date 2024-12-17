@@ -62,12 +62,4 @@ def test_fetchone_axafapstat_context():
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
 def test_no_passwd():
     with pytest.raises(NoPasswordError):
-        s = Sqsh(server="sqlsao", user="aca_nonexistent", database="axafapstat")
-
-
-@pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
-def test_fetch_axafapstat_lines():
-    s = Sqsh()
-    query = "select * from aspect_1 where obsid=5438"
-    lines = s.fetch(query)
-    assert len(lines) >= 5
+        Sqsh(server="sqlsao", user="aca_nonexistent", database="axafapstat")

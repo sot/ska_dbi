@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 ska_dbi provides simple methods for database access and data insertion.
+
 Features:
 
 - Sqlite connections are supported.
@@ -15,11 +16,13 @@ from ska_dbi.common import DEFAULT_CONFIG
 
 def _denumpy(x):
     """
+    Convert from numpy type to native python type.
+
     Try using the numpy.tolist() to convert to native python type.
     DBI's can't typically handle numpy vals."""
     try:
         return x.tolist()
-    except:
+    except Exception:
         return x
 
 
@@ -150,7 +153,10 @@ class DBI(object):
         expr,
         vals=None,
     ):
-        """Fetch one row after executing args.  This always gets the first row of the
+        """
+        Fetch one row.
+
+        Fetch one row after executing args.  This always gets the first row of the
         SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.
 
         Example usage::

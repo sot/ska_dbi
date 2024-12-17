@@ -6,7 +6,5 @@ DEFAULT_CONFIG = {
 
 class NoPasswordError(Exception):
     """
-    Special Error for the case when password is neither supplied nor available
-    from a file.
+    Error when password is neither supplied nor available from a file.
     """
-

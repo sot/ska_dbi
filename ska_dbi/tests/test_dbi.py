@@ -6,6 +6,7 @@ Usage:
 """
 
 import os
+import sqlite3
 import tempfile
 
 import numpy as np
@@ -29,7 +30,7 @@ class DBI_BaseTests(object):
         # fail as a result of test_55.
         try:
             cls.db.execute("drop table ska_dbi_test_table")
-        except:
+        except Exception:
             pass
         cls.db.cursor.close()
         cls.db.conn.close()
@@ -46,15 +47,15 @@ class DBI_BaseTests(object):
 
     def test_15_insert_data(self):
         for id_ in range(3):
-            data = dict(
-                id=id_,
-                tstart=2.0 + id_,
-                tstop=3.0 + id_,
-                obsid=4 + id_,
-                pcad_mode="npnt",
-                aspect_mode="kalm",
-                sim_mode="stop",
-            )
+            data = {
+                "id": id_,
+                "tstart": 2.0 + id_,
+                "tstop": 3.0 + id_,
+                "obsid": 4 + id_,
+                "pcad_mode": "npnt",
+                "aspect_mode": "kalm",
+                "sim_mode": "stop",
+            }
             self.db.insert(data, "ska_dbi_test_table")
 
     def test_20_fetchall(self):
@@ -78,8 +79,8 @@ class DBI_BaseTests(object):
             assert np.allclose(row["tstart"], 2.0 + i)
 
     def test_40_fetch_null(self):
-        for row in self.db.fetch("select * from ska_dbi_test_table where id=100000"):
-            assert False
+        for _ in self.db.fetch("select * from ska_dbi_test_table where id=100000"):
+            raise AssertionError
 
     def test_45_fetchone_null(self):
         row = self.db.fetchone("select * from ska_dbi_test_table where id=100000")
@@ -94,31 +95,31 @@ class DBI_BaseTests(object):
 
 
 class TestSqliteWithNumpy(DBI_BaseTests):
-    db_config = dict(dbi="sqlite", numpy=True)
+    db_config = {"dbi": "sqlite", "numpy": True}
 
 
 class TestSqliteWithoutNumpy(DBI_BaseTests):
-    db_config = dict(dbi="sqlite", numpy=False)
+    db_config = {"dbi": "sqlite", "numpy": False}
 
 
 def test_context_manager():
     with DBI(dbi="sqlite", server=":memory:") as db:
         db.execute(TEST_TABLE_SQL)
         for id_ in range(3):
-            data = dict(
-                id=id_,
-                tstart=2.0 + id_,
-                tstop=3.0 + id_,
-                obsid=4 + id_,
-                pcad_mode="npnt",
-                aspect_mode="kalm",
-                sim_mode="stop",
-            )
+            data = {
+                "id": id_,
+                "tstart": 2.0 + id_,
+                "tstop": 3.0 + id_,
+                "obsid": 4 + id_,
+                "pcad_mode": "npnt",
+                "aspect_mode": "kalm",
+                "sim_mode": "stop",
+            }
             db.insert(data, "ska_dbi_test_table")
         rows = db.fetchall("select * from ska_dbi_test_table")
         assert len(rows) == 3
         assert rows[1]["id"] == 1
 
     # check that access fails now
-    with pytest.raises(Exception):
+    with pytest.raises(sqlite3.ProgrammingError):
         rows = db.fetchall("select * from ska_dbi_test_table")

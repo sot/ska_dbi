@@ -6,7 +6,9 @@ from astropy.table import Table
 from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
 SYBASE = "/soft/SYBASE16.0"
-LD_LIBRARY_PATH = "/soft/SYBASE16.0/OCS-16_0/lib:/soft/SYBASE16.0/OCS-16_0/lib3p64:/soft/SYBASE16.0/OCS-16_0/lib3p"
+LD_LIBRARY_PATH = (
+    f"{SYBASE}/OCS-16_0/lib:{SYBASE}/OCS-16_0/lib3p64:{SYBASE}/OCS-16_0/lib3p"
+)
 SQSH_BIN = "/usr/local/bin/sqsh.bin"
 
 
@@ -22,7 +24,8 @@ class Sqsh(object):
     :param server: Server name (default = sqlsao)
     :param user: User name (default = aca_ops)
     :param database: Database name (default = axafapstat)
-    :param sqshrc: sqshrc file (optional).  Read from aspect authorization dir if required and not supplied.
+    :param sqshrc: sqshrc file (optional).
+                   Read from aspect authorization dir if required and not supplied.
     :param authdir: Directory containing authorization files
 
     :rtype: Sqsh object
