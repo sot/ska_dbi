@@ -3,13 +3,13 @@ import ska_helpers
 
 from .DBI import *
 
-__version__ = ska_helpers.get_version('ska_dbi')
+__version__ = ska_helpers.get_version("ska_dbi")
 
 
 def test(*args, **kwargs):
-    '''
+    """
     Run py.test unit tests.
-    '''
+    """
     import testr
 
     return testr.test(*args, **kwargs)

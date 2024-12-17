@@ -22,12 +22,12 @@ def test_fetchall_axafapstat():
     dat = s.fetchall(query)
     assert len(dat) >= 4
     assert dat["obsid"][0] == 5438
-    assert dat[dat["revision"] == 1]['ascdsver'] == '7.6.3'
+    assert dat[dat["revision"] == 1]["ascdsver"] == "7.6.3"
 
 
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
 def test_fetchall_axafocat_empty():
-    s = Sqsh(server='sqlsao', user='aca_ops', database='axafocat')
+    s = Sqsh(server="sqlsao", user="aca_ops", database="axafocat")
     query = "select * from target where obsid=80000"
     dat = s.fetchall(query)
     assert len(dat) == 0
@@ -39,12 +39,12 @@ def test_fetchone_axafapstat():
     query = "select * from aspect_1 where obsid=5438 and revision=1"
     dat = s.fetchone(query)
     assert dat["obsid"] == 5438
-    assert dat['ascdsver'] == '7.6.3'
+    assert dat["ascdsver"] == "7.6.3"
 
 
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
 def test_fetchone_axafocat_empty():
-    s = Sqsh(server='sqlsao', user='aca_ops', database='axafocat')
+    s = Sqsh(server="sqlsao", user="aca_ops", database="axafocat")
     query = "select * from target where obsid=80000"
     dat = s.fetchone(query)
     assert dat is None
@@ -56,13 +56,13 @@ def test_fetchone_axafapstat_context():
         query = "select * from aspect_1 where obsid=5438 and revision=1"
         dat = s.fetchone(query)
         assert dat["obsid"] == 5438
-        assert dat['ascdsver'] == '7.6.3'
+        assert dat["ascdsver"] == "7.6.3"
 
 
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
 def test_no_passwd():
     with pytest.raises(NoPasswordError):
-        s = Sqsh(server='sqlsao', user='aca_nonexistent', database='axafapstat')
+        s = Sqsh(server="sqlsao", user="aca_nonexistent", database="axafapstat")
 
 
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")

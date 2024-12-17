@@ -52,19 +52,19 @@ class DBI(object):
         verbose=False,
         **kwargs,
     ):
-        if dbi != 'sqlite':
+        if dbi != "sqlite":
             raise ValueError(
-                f'ska_dbi.DBI only supports sqlite at this time.  Got {dbi}.'
+                f"ska_dbi.DBI only supports sqlite at this time.  Got {dbi}."
             )
 
         self.dbi = dbi
-        self.server = server or DEFAULT_CONFIG[dbi].get('server')
+        self.server = server or DEFAULT_CONFIG[dbi].get("server")
         self.numpy = numpy
         self.autocommit = autocommit
         self.verbose = verbose
 
         if self.verbose:
-            print('Connecting to', self.dbi, 'server', self.server)
+            print("Connecting to", self.dbi, "server", self.server)
 
         self.conn = dbapi2.connect(self.server)
         self.Error = dbapi2.Error
@@ -103,14 +103,14 @@ class DBI(object):
         # Get a new cursor (implicitly closing any previous cursor)
         self.cursor = self.conn.cursor()
 
-        for subexpr in expr.split(';\n'):
+        for subexpr in expr.split(";\n"):
             if vals is not None:
                 args = (subexpr, vals)
             else:
                 args = (subexpr,)
 
             if self.verbose:
-                print('Running:', args)
+                print("Running:", args)
             self.cursor.execute(*args)
 
         if (commit is None and self.autocommit) or commit:
@@ -227,11 +227,11 @@ class DBI(object):
 
         # Create the insert command depending on dbi.  Start with the column
         # value replacement strings
-        colrepls = ('?',) * len(cols)
+        colrepls = ("?",) * len(cols)
 
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
-        replace_str = replace and 'OR REPLACE' or ''
-        cmd = insert_str % (replace_str, tablename, ','.join(cols), ','.join(colrepls))
+        replace_str = replace and "OR REPLACE" or ""
+        cmd = insert_str % (replace_str, tablename, ",".join(cols), ",".join(colrepls))
 
         # Finally run the insert command
         self.execute(cmd, vals, commit=commit)

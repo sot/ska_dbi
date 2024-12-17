@@ -1,6 +1,6 @@
 DEFAULT_CONFIG = {
-    'sqlite': {'server': 'db.sql3'},
-    'sybase': {'server': 'sqlsao', 'user': 'aca_ops', 'database': 'axafapstat'},
+    "sqlite": {"server": "db.sql3"},
+    "sybase": {"server": "sqlsao", "user": "aca_ops", "database": "axafapstat"},
 }
 
 

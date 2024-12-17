@@ -35,9 +35,9 @@ class Sqsh(object):
         authdir="/proj/sot/ska/data/aspect_authorization",
         **kwargs,
     ):
-        self.server = server or DEFAULT_CONFIG['sybase'].get("server")
-        self.user = user or DEFAULT_CONFIG['sybase'].get("user")
-        self.database = database or DEFAULT_CONFIG['sybase'].get("database")
+        self.server = server or DEFAULT_CONFIG["sybase"].get("server")
+        self.user = user or DEFAULT_CONFIG["sybase"].get("user")
+        self.database = database or DEFAULT_CONFIG["sybase"].get("database")
         self.sqshrc = sqshrc
 
         if not Path(SYBASE).exists():
@@ -84,7 +84,7 @@ class Sqsh(object):
         """
         cmd_env = {"SYBASE": SYBASE, "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
         if self.sqshrc is not None:
-            cmd_env['SQSHRC'] = self.sqshrc
+            cmd_env["SQSHRC"] = self.sqshrc
 
         cmd = [
             SQSH_BIN,
