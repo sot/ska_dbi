@@ -1,10 +1,14 @@
 import subprocess
 from pathlib import Path
+
 from astropy.table import Table
+
 from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
 SYBASE = "/soft/SYBASE16.0"
-LD_LIBRARY_PATH = "/soft/SYBASE16.0/OCS-16_0/lib:/soft/SYBASE16.0/OCS-16_0/lib3p64:/soft/SYBASE16.0/OCS-16_0/lib3p"
+LD_LIBRARY_PATH = (
+    f"{SYBASE}/OCS-16_0/lib:{SYBASE}/OCS-16_0/lib3p64:{SYBASE}/OCS-16_0/lib3p"
+)
 SQSH_BIN = "/usr/local/bin/sqsh.bin"
 
 
@@ -20,11 +24,13 @@ class Sqsh(object):
     :param server: Server name (default = sqlsao)
     :param user: User name (default = aca_ops)
     :param database: Database name (default = axafapstat)
-    :param sqshrc: sqshrc file (optional).  Read from aspect authorization dir if required and not supplied.
+    :param sqshrc: sqshrc file (optional).
+                   Read from aspect authorization dir if required and not supplied.
     :param authdir: Directory containing authorization files
 
     :rtype: Sqsh object
     """
+
     def __init__(
         self,
         server=None,
@@ -34,10 +40,9 @@ class Sqsh(object):
         authdir="/proj/sot/ska/data/aspect_authorization",
         **kwargs,
     ):
-
-        self.server = server or DEFAULT_CONFIG['sybase'].get("server")
-        self.user = user or DEFAULT_CONFIG['sybase'].get("user")
-        self.database = database or DEFAULT_CONFIG['sybase'].get("database")
+        self.server = server or DEFAULT_CONFIG["sybase"].get("server")
+        self.user = user or DEFAULT_CONFIG["sybase"].get("user")
+        self.database = database or DEFAULT_CONFIG["sybase"].get("database")
         self.sqshrc = sqshrc
 
         if not Path(SYBASE).exists():
@@ -82,10 +87,9 @@ class Sqsh(object):
         -------
         list of str
         """
-        cmd_env = {"SYBASE": SYBASE,
-                   "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
+        cmd_env = {"SYBASE": SYBASE, "LD_LIBRARY_PATH": LD_LIBRARY_PATH}
         if self.sqshrc is not None:
-            cmd_env['SQSHRC'] = self.sqshrc
+            cmd_env["SQSHRC"] = self.sqshrc
 
         cmd = [
             SQSH_BIN,
@@ -103,7 +107,8 @@ class Sqsh(object):
         ]
 
         stdout = subprocess.check_output(
-            cmd, env=cmd_env,
+            cmd,
+            env=cmd_env,
         )
         outlines = stdout.decode().splitlines()
         return outlines

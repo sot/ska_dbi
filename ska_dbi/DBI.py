@@ -1,25 +1,28 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 """
 ska_dbi provides simple methods for database access and data insertion.
+
 Features:
 
 - Sqlite connections are supported.
 - Integration with numpy record arrays.
 - Verbose mode to show transaction information.
 """
-import os
-import sys
+
 import sqlite3 as dbapi2
-from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
+
+from ska_dbi.common import DEFAULT_CONFIG
 
 
 def _denumpy(x):
     """
+    Convert from numpy type to native python type.
+
     Try using the numpy.tolist() to convert to native python type.
     DBI's can't typically handle numpy vals."""
     try:
         return x.tolist()
-    except:
+    except Exception:
         return x
 
 
@@ -41,22 +44,29 @@ class DBI(object):
 
     :rtype: DBI object
     """
-    def __init__(self, dbi=None, server=None,
-                 numpy=True, autocommit=True, verbose=False,
-                 **kwargs):
 
-
-        if dbi != 'sqlite':
-            raise ValueError(f'ska_dbi.DBI only supports sqlite at this time.  Got {dbi}.')
+    def __init__(
+        self,
+        dbi=None,
+        server=None,
+        numpy=True,
+        autocommit=True,
+        verbose=False,
+        **kwargs,
+    ):
+        if dbi != "sqlite":
+            raise ValueError(
+                f"ska_dbi.DBI only supports sqlite at this time.  Got {dbi}."
+            )
 
         self.dbi = dbi
-        self.server = server or DEFAULT_CONFIG[dbi].get('server')
+        self.server = server or DEFAULT_CONFIG[dbi].get("server")
         self.numpy = numpy
         self.autocommit = autocommit
         self.verbose = verbose
 
         if self.verbose:
-            print('Connecting to', self.dbi, 'server', self.server)
+            print("Connecting to", self.dbi, "server", self.server)
 
         self.conn = dbapi2.connect(self.server)
         self.Error = dbapi2.Error
@@ -95,20 +105,24 @@ class DBI(object):
         # Get a new cursor (implicitly closing any previous cursor)
         self.cursor = self.conn.cursor()
 
-        for subexpr in expr.split(';\n'):
+        for subexpr in expr.split(";\n"):
             if vals is not None:
                 args = (subexpr, vals)
             else:
                 args = (subexpr,)
 
             if self.verbose:
-                print('Running:', args)
+                print("Running:", args)
             self.cursor.execute(*args)
 
         if (commit is None and self.autocommit) or commit:
             self.commit()
 
-    def fetch(self, expr, vals=None,):
+    def fetch(
+        self,
+        expr,
+        vals=None,
+    ):
         """
         Return a generator that will fetch one row at a time after executing with args.
 
@@ -127,15 +141,22 @@ class DBI(object):
         while True:
             vals = self.cursor.fetchone()
             if vals:
-                yield dict(zip(cols, vals))
+                yield dict(zip(cols, vals, strict=False))
             else:
                 if self.autocommit:
                     self.commit()
                 self.cursor.close()
                 break
 
-    def fetchone(self, expr, vals=None,):
-        """Fetch one row after executing args.  This always gets the first row of the
+    def fetchone(
+        self,
+        expr,
+        vals=None,
+    ):
+        """
+        Fetch one row.
+
+        Fetch one row after executing args.  This always gets the first row of the
         SQL query.  Use ska_dbi.fetch() to get multiple rows one at a time.
 
         Example usage::
@@ -179,11 +200,12 @@ class DBI(object):
 
         if self.numpy and vals:
             import numpy
+
             # Would be good to set dtype explicitly from database info instead of
             # having numpy auto-determine types
             return numpy.rec.fromrecords(vals, names=cols)
         else:
-            return [dict(zip(cols, x)) for x in vals]
+            return [dict(zip(cols, x, strict=False)) for x in vals]
 
     def insert(self, row, tablename, replace=False, commit=None):
         """Insert data row into table tablename.
@@ -210,13 +232,11 @@ class DBI(object):
 
         # Create the insert command depending on dbi.  Start with the column
         # value replacement strings
-        colrepls = ('?',) * len(cols)
+        colrepls = ("?",) * len(cols)
 
         insert_str = "INSERT %s INTO %s (%s) VALUES (%s)"
-        replace_str = replace and 'OR REPLACE' or ''
-        cmd = insert_str % (replace_str, tablename,
-                            ','.join(cols),
-                            ','.join(colrepls))
+        replace_str = replace and "OR REPLACE" or ""
+        cmd = insert_str % (replace_str, tablename, ",".join(cols), ",".join(colrepls))
 
         # Finally run the insert command
         self.execute(cmd, vals, commit=commit)
