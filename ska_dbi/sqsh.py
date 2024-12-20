@@ -136,15 +136,26 @@ class Sqsh(object):
         """
         Fetches the first row returned by the query.
 
+        Internally, this adds a "top 1" after the select query if there isn't already a "top 1".
+
         Parameters
         ----------
         query : str
-            The SQL query to execute.
+            The SQL query to execute.  This must be a select statement and start with "select".
 
         Returns
         -------
         astropy.table.Row or None
         """
+        # if the query isn't a select statement, throw an error
+        if not query.lower().startswith("select"):
+            raise ValueError("fetchone() only works with select statements")
+
+        if "top" in query.lower():
+            raise ValueError("fetchone() only works with select statements without top")
+
+        query = query[:6] + " top 1 " + query[6:]
+
         outlines = self.fetch(query)
         # Sqsh should always be returning a header line -- return None if that's it.
         if len(outlines) <= 1:
