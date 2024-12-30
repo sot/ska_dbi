@@ -136,6 +136,11 @@ class Sqsh(object):
         """
         Fetches the first row returned by the query.
 
+        Unlike the sqlite version, this is *not* optimized for memory use. It fetches all the
+        rows matching the query and then returns the first one. When using this method, if one
+        is concerned about memory use, one should construct the query to match only the row of
+        interest.
+
         Parameters
         ----------
         query : str
