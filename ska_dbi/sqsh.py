@@ -110,7 +110,7 @@ class Sqsh(object):
             cmd,
             env=cmd_env,
         )
-        outlines = stdout.decode().splitlines()
+        outlines = stdout.decode("latin-1").splitlines()
         return outlines
 
     def fetchall(self, query):
