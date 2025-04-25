@@ -12,8 +12,10 @@ def test_fetch_not_utf8():
     s = Sqsh(server="sqlsao", user="aca_ops", database="axafocat")
     query = "select obsid, remarks from target where obsid = 15191"
     dat = s.fetchone(query)
-    assert (dat["remarks"] ==
-    "Assumed roll of 184 degr (OK for role ± 20 deg, if more need to update parameters.")
+    assert (
+        dat["remarks"]
+        == "Assumed roll of 184 degr (OK for role ± 20 deg, if more need to update parameters."
+    )
 
 
 @pytest.mark.skipif("not ON_HEAD_NETWORK", reason="Test only runs on HEAD network")
