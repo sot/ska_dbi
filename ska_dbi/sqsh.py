@@ -70,7 +70,7 @@ class Sqsh(object):
         Context manager exit run time context.
         """
 
-    def fetch(self, query):
+    def fetch(self, query, encoding="latin1"):
         """
         Execute a query and return all returned sql rows a list of lines.
 
@@ -82,6 +82,10 @@ class Sqsh(object):
         ----------
         query : str
             SQL query to execute (select statements are expected for our use cases)
+
+        encoding : str, optional
+            The encoding to use for decoding the output from sqsh. If not provided, the default
+            encoding is used (latin1).
 
         Returns
         -------
@@ -110,10 +114,10 @@ class Sqsh(object):
             cmd,
             env=cmd_env,
         )
-        outlines = stdout.decode().splitlines()
+        outlines = stdout.decode(encoding).splitlines()
         return outlines
 
-    def fetchall(self, query):
+    def fetchall(self, query, encoding="latin1"):
         """
         Fetches all the rows returned by the query.
 
@@ -122,17 +126,21 @@ class Sqsh(object):
         query : str
             The SQL query to execute.
 
+        encoding : str, optional
+            The encoding to use for decoding the output from sqsh. If not provided, the default
+            encoding is used (latin1).
+
         Returns
         -------
         astropy.table.Table
             The table containing the fetched rows. If there are no rows that match the query,
             a zero-length table is returned.
         """
-        outlines = self.fetch(query)
+        outlines = self.fetch(query, encoding=encoding)
         tab = Table.read(outlines, format="ascii.csv")
         return tab
 
-    def fetchone(self, query):
+    def fetchone(self, query, encoding="latin1"):
         """
         Fetches the first row returned by the query.
 
@@ -141,11 +149,15 @@ class Sqsh(object):
         query : str
             The SQL query to execute.
 
+        encoding : str, optional
+            The encoding to use for decoding the output from sqsh. If not provided, the default
+            encoding is used (latin1).
+
         Returns
         -------
         astropy.table.Row or None
         """
-        outlines = self.fetch(query)
+        outlines = self.fetch(query, encoding=encoding)
         # Sqsh should always be returning a header line -- return None if that's it.
         if len(outlines) <= 1:
             return None
