@@ -5,9 +5,9 @@ from astropy.table import Table
 
 from ska_dbi.common import DEFAULT_CONFIG, NoPasswordError
 
-SYBASE = "/soft/SYBASE16.0"
+SYBASE = "/soft/SYBASE16.1"
 LD_LIBRARY_PATH = (
-    f"{SYBASE}/OCS-16_0/lib:{SYBASE}/OCS-16_0/lib3p64:{SYBASE}/OCS-16_0/lib3p"
+    f"{SYBASE}/OCS-16_1/lib:{SYBASE}/OCS-16_1/lib3p64:{SYBASE}/OCS-16_1/lib3p"
 )
 SQSH_BIN = "/usr/local/bin/sqsh.bin"
 
